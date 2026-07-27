@@ -12,7 +12,7 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 prompt = """
-Generate exactly 3 short, interesting facts or updates about what's happening in the world right now.
+Generate exactly 5 short, interesting facts or updates about what's happening in the world right now.
 
 Pick a random topic from one of these categories:
 - 🌍 Global Events & Geopolitics (wars, conflicts, diplomacy, elections, treaties)
@@ -22,13 +22,14 @@ Pick a random topic from one of these categories:
 - ⚠️ Risks & Threats (cybersecurity, climate disasters, pandemics, supply chain issues)
 - 🏛️ Policy & Regulations (new laws, tech regulations, trade policies, sanctions)
 - 🚀 Startups & Business (funding rounds, acquisitions, IPOs, new products)
+- 💼 Job Markets & Careers (hiring trends, layoffs, in-demand skills, remote work, salary shifts)
 
 Rules:
 - Simple English, easy to understand
 - Maximum 3 lines per point
 - Share real, interesting, and recent-sounding information
 - No introductions or conclusions
-- Use numbered format (1., 2., 3.)
+- Use numbered format (1., 2., 3., 4., 5.)
 - Include the category emoji and topic name at the top
 - Use relevant emojis in each point
 - Make it feel like a quick morning news briefing
