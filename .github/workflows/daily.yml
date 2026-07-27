@@ -24,7 +24,7 @@ jobs:
 
       - name: Run Bot
         env:
-          GEMINI_API_KEY: ${{ secrets.AIzaSyDcauSCnn3Lft6-5oTsHu65U7cpI7snz6c }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.8470286032:AAF9kMtANwuKxUVXaLXfbYsWqqINOyV4_1I }}
-          CHAT_ID: ${{ secrets.6690855328 }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
         run: python main.py
