@@ -12,24 +12,31 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash")
 
 prompt = """
-Generate exactly 3 short learning points for a software engineer.
+Generate exactly 3 short, interesting facts or updates about what's happening in the world right now.
 
-Pick a random topic from:
-Python, JavaScript, React, Django, AI/ML, DSA, Quantum Computing, or Interview Preparation.
+Pick a random topic from one of these categories:
+- 🌍 Global Events & Geopolitics (wars, conflicts, diplomacy, elections, treaties)
+- 💰 Economy & Price Hikes (inflation, commodity prices, fuel, food costs, stock market)
+- 🤖 New AI Tools & Inventions (new models like OpenClaw, NemoClaw, new startups, breakthroughs)
+- 🔬 Science & Technology (space missions, medical breakthroughs, quantum computing, robotics)
+- ⚠️ Risks & Threats (cybersecurity, climate disasters, pandemics, supply chain issues)
+- 🏛️ Policy & Regulations (new laws, tech regulations, trade policies, sanctions)
+- 🚀 Startups & Business (funding rounds, acquisitions, IPOs, new products)
 
 Rules:
-- Simple English
+- Simple English, easy to understand
 - Maximum 3 lines per point
-- Useful for software engineers
+- Share real, interesting, and recent-sounding information
 - No introductions or conclusions
 - Use numbered format (1., 2., 3.)
-- Include the topic name at the top
-- Use emojis
+- Include the category emoji and topic name at the top
+- Use relevant emojis in each point
+- Make it feel like a quick morning news briefing
 """
 
 # Generate content
 response = model.generate_content(prompt)
-message = "🧠 *Daily AI Mentor*\n\n" + response.text
+message = "📰 *Daily World Briefing*\n\n" + response.text
 
 # Send to Telegram
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
