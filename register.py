@@ -38,7 +38,6 @@ WELCOME_MESSAGE = """👋 <b>Welcome to Daily World Briefing Bot!</b>
 
 
 def load_existing_chat_ids():
-    """Load existing chat IDs from file."""
     if not os.path.exists(CHAT_IDS_FILE):
         return set()
     with open(CHAT_IDS_FILE, "r") as f:
@@ -46,14 +45,12 @@ def load_existing_chat_ids():
 
 
 def save_chat_ids(chat_ids):
-    """Save chat IDs to file."""
     with open(CHAT_IDS_FILE, "w") as f:
         for chat_id in sorted(chat_ids):
             f.write(f"{chat_id}\n")
 
 
 def load_last_offset():
-    """Load the last processed update_id to avoid duplicates."""
     if not os.path.exists(OFFSET_FILE):
         return None
     with open(OFFSET_FILE, "r") as f:
@@ -62,13 +59,11 @@ def load_last_offset():
 
 
 def save_last_offset(offset):
-    """Save the last processed update_id."""
     with open(OFFSET_FILE, "w") as f:
         f.write(str(offset))
 
 
 def send_welcome(chat_id):
-    """Send welcome message to a new user."""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     try:
         r = requests.post(
@@ -89,7 +84,6 @@ def send_welcome(chat_id):
 
 
 def get_updates(offset=None):
-    """Fetch new updates from Telegram."""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates"
     params = {"timeout": 5}
     if offset:
@@ -101,7 +95,10 @@ def get_updates(offset=None):
             data = r.json()
             if data.get("ok"):
                 return data.get("result", [])
-        print(f"❌ getUpdates failed: {r.text}")
+        elif r.status_code == 409 and "webhook is active" in r.text.lower():
+            print("ℹ️ Telegram Webhook is active! Instant replies are operating via your deployment. Polling skipped safely.")
+            return []
+        print(f"⚠️ getUpdates response: {r.text}")
     except Exception as e:
         print(f"❌ Error fetching updates: {e}")
 
@@ -115,13 +112,11 @@ def main():
     print(f"📋 Existing users: {len(existing_ids)}")
     print(f"📍 Last offset: {last_offset}")
 
-    # Fetch new updates
-    offset = (last_offset + 1) if last_offset else None
-    updates = get_updates(offset)
+    updates = get_updates(last_offset + 1 if last_offset else None)
 
     if not updates:
-        print("📭 No new updates found.")
-        return False  # No changes
+        print("📭 No new updates found (or webhook is handling registrations).")
+        return False
 
     new_users_added = False
     max_update_id = last_offset or 0
@@ -130,7 +125,6 @@ def main():
         update_id = update.get("update_id", 0)
         max_update_id = max(max_update_id, update_id)
 
-        # Check for /start command in messages
         message = update.get("message", {})
         text = message.get("text", "")
         chat = message.get("chat", {})
@@ -145,13 +139,10 @@ def main():
                 new_users_added = True
             else:
                 print(f"👤 Existing user sent /start: {first_name} (ID: {chat_id})")
-                # Still send welcome for existing users who /start again
                 send_welcome(chat_id)
 
-    # Save the offset so we don't reprocess these updates
     save_last_offset(max_update_id)
 
-    # Save updated chat IDs if new users were added
     if new_users_added:
         save_chat_ids(existing_ids)
         print(f"💾 Updated {CHAT_IDS_FILE} — now {len(existing_ids)} users")
@@ -161,7 +152,6 @@ def main():
 
 if __name__ == "__main__":
     changed = main()
-    # Set output for GitHub Actions to know if commit is needed
     github_output = os.getenv("GITHUB_OUTPUT")
     if github_output:
         with open(github_output, "a") as f:

@@ -3,7 +3,7 @@ import json
 import base64
 import urllib.request
 import urllib.parse
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 
 app = Flask(__name__)
 
@@ -12,9 +12,6 @@ GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "ManojKuppala/daily-ai-mentor")
 CHAT_IDS_FILE = "chat_ids.txt"
 
-# -------------------------------
-# Welcome Message
-# -------------------------------
 WELCOME_MESSAGE = """👋 <b>Welcome to Daily World Briefing Bot!</b>
 
 🤖 <b>Created by Manoj Kuppala</b>
@@ -37,7 +34,6 @@ WELCOME_MESSAGE = """👋 <b>Welcome to Daily World Briefing Bot!</b>
 
 
 def send_telegram_message(chat_id, text):
-    """Send a message via Telegram Bot API."""
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     data = json.dumps({
         "chat_id": chat_id,
@@ -55,7 +51,10 @@ def send_telegram_message(chat_id, text):
 
 
 def get_chat_ids_from_github():
-    """Fetch current chat_ids.txt content from GitHub."""
+    if not GITHUB_TOKEN:
+        print("GITHUB_TOKEN not set, skipping remote file fetch.")
+        return set(), None
+
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{CHAT_IDS_FILE}"
     req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {GITHUB_TOKEN}",
@@ -74,21 +73,23 @@ def get_chat_ids_from_github():
 
 
 def add_chat_id_to_github(chat_id):
-    """Add a new chat ID to chat_ids.txt in the GitHub repo."""
+    if not GITHUB_TOKEN:
+        print("GITHUB_TOKEN not set, cannot update repository automatically.")
+        return False
+
     existing_ids, sha = get_chat_ids_from_github()
 
     if str(chat_id) in existing_ids:
         print(f"Chat ID {chat_id} already registered")
         return True
 
-    # Add the new ID
     existing_ids.add(str(chat_id))
     new_content = "\n".join(sorted(existing_ids)) + "\n"
     encoded_content = base64.b64encode(new_content.encode("utf-8")).decode("utf-8")
 
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{CHAT_IDS_FILE}"
     data = json.dumps({
-        "message": f"Auto-register user {chat_id}",
+        "message": f"Auto-register user {chat_id} via Webhook",
         "content": encoded_content,
         "sha": sha,
         "committer": {
@@ -114,18 +115,47 @@ def add_chat_id_to_github(chat_id):
 
 @app.route("/")
 def home():
-    return "🤖 Daily World Briefing Bot is running!"
+    return """
+    <h1>🤖 Daily World Briefing Bot</h1>
+    <p>Webhook Status: Online ✅</p>
+    <p><a href="/setup-webhook"><button style="padding:10px 15px; font-size:16px; cursor:pointer;">⚡ One-Click Setup Telegram Webhook</button></a></p>
+    """
+
+
+@app.route("/setup-webhook")
+def setup_webhook():
+    if not BOT_TOKEN:
+        return "❌ Error: TELEGRAM_BOT_TOKEN environment variable is missing!", 500
+
+    # Derive HTTPS webhook URL automatically from incoming request
+    webhook_url = request.host_url.rstrip("/") + "/webhook"
+    # Ensure https scheme for Telegram requirement
+    if not webhook_url.startswith("https://"):
+        webhook_url = "https://" + request.host_url.lstrip("http://").rstrip("/") + "/webhook"
+
+    api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url={urllib.parse.quote(webhook_url)}"
+    try:
+        with urllib.request.urlopen(api_url, timeout=10) as resp:
+            data = json.loads(resp.read().decode())
+            if data.get("ok"):
+                return f"""
+                <h2>✅ Telegram Webhook Activated Successfully!</h2>
+                <p>Webhook URL set to: <b>{webhook_url}</b></p>
+                <p>Telegram is now sending instant /start messages straight to your app!</p>
+                <p><a href="https://t.me">👉 Go try it on Telegram now</a></p>
+                """
+            else:
+                return f"❌ Telegram API Error: {data}", 400
+    except Exception as e:
+        return f"❌ Failed to set webhook: {e}", 500
 
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    """Handle incoming Telegram webhook updates."""
     update = request.get_json()
-
     if not update:
         return jsonify({"status": "no data"}), 200
 
-    # Extract message info
     message = update.get("message", {})
     text = message.get("text", "")
     chat = message.get("chat", {})
@@ -134,13 +164,10 @@ def webhook():
     if not chat_id:
         return jsonify({"status": "no chat_id"}), 200
 
-    # Handle /start command
-    if text.strip() == "/start":
-        # Send welcome message instantly
+    if text.strip().startswith("/start"):
         send_telegram_message(chat_id, WELCOME_MESSAGE)
-        # Register user in GitHub repo
         add_chat_id_to_github(chat_id)
-        print(f"🆕 New user registered: {chat_id}")
+        print(f"🆕 User interaction handled for ID: {chat_id}")
 
     return jsonify({"status": "ok"}), 200
 
