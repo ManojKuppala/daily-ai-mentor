@@ -36,40 +36,32 @@ google_search_tool = types.Tool(
 )
 
 prompt = """
-You are a daily news briefing assistant. Search the web and generate exactly 8 SHORT news updates 
-from TODAY or YESTERDAY — real, verified, current events only.
+You are an expert tech journalist and world news briefing assistant. Use Google Search to find real, verified news from TODAY or YESTERDAY.
+You MUST generate exactly 8 crisp, fascinating news updates. NO generic high-level fluff. You must name real companies, exact device models, hardware specs (like RAM or chip names), and real events.
 
-Each point MUST be from a DIFFERENT category. Three points MUST be included every day:
-1) 💻 Tech Gadgets & AI Hardware
-2) 🚀 Startup Companies & New Technologies
-3) 🏵️ Telugu States News
+MANDATORY GUARANTEED TOPICS (You MUST include ALL 3 of these first every single day):
+1. 💻 Tech Gadgets & AI Hardware: Report a newly announced or trending piece of hardware (e.g., an AI PC/laptop with massive RAM like Lenovo Yoga / ASUS / MacBook AI PCs, new NVIDIA/Intel/AMD AI processor, or innovative smart device). State exact hardware specs!
+2. 🚀 Startup Companies & New Technologies: Report on an exciting emerging tech startup, a disruptive company invention, a massive funding round, or a breakthrough proprietary tool. Name the company and explain their tech!
+3. 🏵️ Telugu States News: Real, verified current news from Andhra Pradesh or Telangana (e.g., IT announcements in Hyderabad or Amaravati, CM decisions, regional infrastructure, tech investment).
 
-Pick 8 from:
-- 💻 Tech Gadgets & AI Hardware (new AI PC/laptop launches with high RAM like Lenovo Yoga, processors, GPUs, smartphones, innovative hardware)
-- 🚀 Startup Companies & New Technologies (emerging tech startups, disruptive company inventions, new proprietary tools, software breakthroughs, funding rounds)
-- 🏵️ Telugu States News (Andhra Pradesh & Telangana — politics, development, CM decisions, IT hubs, state economy)
-- 🌍 Global Events & Geopolitics (wars, conflicts, diplomacy, elections, treaties)
-- 💰 Economy & Price Hikes (inflation, commodity prices, fuel, food costs, stock market)
-- 🤖 New AI Tools & Models (latest LLM releases, AI software capabilities, automation updates)
-- 🔬 Science & Research (space missions, medical scientific advances, quantum computing, robotics)
-- ⚠️ Risks & Threats (cybersecurity alerts, climate disasters, supply chain disruptions)
-- 🏛️ Policy & Regulations (new tech laws, AI regulations, trade policies, sanctions)
-- 💼 Job Markets & Careers (hiring trends, layoffs, in-demand technical skills, remote work shifts)
+REMAINING 5 TOPICS (Pick 5 diverse topics from this list):
+- 🤖 New AI Tools & Models (latest AI software capabilities, coding assistants, OpenClaw/NemoClaw/LLM breakthroughs)
+- 💰 Economy & Price Hikes (inflation trends, commodity/gold/oil prices, stock market shifts)
+- 💼 Job Markets & Careers (tech hiring trends, in-demand technical skills, salary shifts, corporate hiring)
+- 🌍 Global Events & Geopolitics (major international diplomacy, treaties, critical global updates)
+- 🔬 Science & Research Advances (space exploration missions, quantum computing, scientific discovery)
+- ⚠️ Risks & Threats (cybersecurity warnings, climate disasters, supply chain alerts)
+- 🏛️ Policy & Regulations (new tech regulations, government AI laws, global trade policies)
 
-FORMAT STRICTLY LIKE THIS (use HTML tags, NOT markdown):
+FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
 
 <b>Category Emoji Category Name</b>
-2-3 lines of actual current news with relevant emojis. Must be real events from today or yesterday.
+2-3 lines of real current facts, naming specific devices, startups, specs, or people. Include relevant emojis.
 
 Rules:
-- MUST be real, factual, current news — NOT made up
-- Simple English, easy to understand
-- Maximum 3 lines per point
-- NO introductions, conclusions, or extra commentary
-- NO numbering — just bold category headers with emoji
-- NO markdown — use ONLY HTML <b> and <i> tags
-- Put a blank line between each point
-- Use relevant emojis within the text
+- STRICTLY use HTML tags (<b> for headers). Do NOT use markdown (**bold**) or numbering (1., 2.).
+- Put a single empty line between each news block.
+- Be precise, exciting, and specific!
 """
 
 # Generate content with Google Search grounding
