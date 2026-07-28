@@ -18,12 +18,13 @@ WELCOME_MESSAGE = """👋 <b>Welcome to Daily World Briefing Bot!</b>
 
 📰 This bot sends you a <b>daily news briefing</b> every morning with:
 
+• 💻 Latest Tech Gadgets & AI Hardware
+• 🚀 Startup Companies & New Technologies
 • 🌍 Global events & geopolitics
 • 💰 Economy & price updates
-• 🤖 Latest AI tools & inventions
-• 🔬 Science & tech breakthroughs
-• ⚠️ Risks & threats
-• 💼 Job market trends
+• 🤖 Latest AI tools & software models
+• 🔬 Science & breakthroughs
+• 💼 Job market & career trends
 • 🏵️ Telugu States (AP & Telangana) news
 
 ⏰ <b>Delivery Time:</b> Every day at <b>9:00 AM IST</b>
