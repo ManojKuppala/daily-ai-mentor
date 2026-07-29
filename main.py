@@ -65,14 +65,39 @@ Rules:
 - Be precise, exciting, and specific!
 """
 
-# Generate content with Google Search grounding
-response = client.models.generate_content(
-    model="gemini-2.0-flash",
-    contents=prompt,
-    config=types.GenerateContentConfig(
-        tools=[google_search_tool]
+try:
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            tools=[google_search_tool],
+            safety_settings=[
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                    threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                    threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                    threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                ),
+                types.SafetySetting(
+                    category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                    threshold=types.HarmBlockThreshold.BLOCK_NONE,
+                ),
+            ]
+        )
     )
-)
+    raw_text = response.text.strip()
+except Exception as e:
+    print(f"❌ Gemini API Error: {e}")
+    if 'response' in locals() and hasattr(response, 'candidates') and response.candidates:
+        print(f"Finish reason: {response.candidates[0].finish_reason}")
+    import sys
+    sys.exit(1)
 
 # Get today's date in IST
 ist = timezone(timedelta(hours=5, minutes=30))
@@ -84,7 +109,7 @@ footer = f"\n{'━' * 28}\n💡 <i>Powered by Gemini AI + Google Search</i>\n�
 
 import html
 # 1. Escape all raw text to make it 100% safe for Telegram's strict parser
-safe_body = html.escape(response.text.strip())
+safe_body = html.escape(raw_text)
 # 2. Restore ONLY the bold and italic tags we instructed the AI to use
 safe_body = safe_body.replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
 safe_body = safe_body.replace("&lt;i&gt;", "<i>").replace("&lt;/i&gt;", "</i>")
@@ -115,8 +140,22 @@ for chat_id in CHAT_IDS:
             print(f"✅ Sent successfully to {chat_id}")
             success_count += 1
         else:
-            print(f"❌ Failed for {chat_id}: {r.text}")
-            fail_count += 1
+            print(f"❌ Failed HTML for {chat_id}: {r.text}")
+            print("⚠️ Falling back to plain text...")
+            r2 = requests.post(
+                url,
+                json={
+                    "chat_id": chat_id,
+                    "text": message,
+                },
+                timeout=20
+            )
+            if r2.status_code == 200:
+                print(f"✅ Sent plain text successfully to {chat_id}")
+                success_count += 1
+            else:
+                print(f"❌ Failed plain text for {chat_id}: {r2.text}")
+                fail_count += 1
 
     except Exception as e:
         print(f"❌ Error sending to {chat_id}: {e}")
