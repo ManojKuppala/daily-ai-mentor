@@ -60,6 +60,7 @@ FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
 
 Rules:
 - STRICTLY use HTML tags (<b> for headers). Do NOT use markdown (**bold**) or numbering (1., 2.).
+- CRITICAL: NEVER use the "&" symbol (write the word "and" instead). NEVER use "<" or ">" symbols (except for the <b> tags). Telegram will crash if you use them!
 - Put a single empty line between each news block.
 - Be precise, exciting, and specific!
 """
@@ -114,4 +115,10 @@ for chat_id in CHAT_IDS:
         print(f"❌ Error sending to {chat_id}: {e}")
         fail_count += 1
 
+import sys
+
 print(f"\n🎉 Done! Sent: {success_count} | Failed: {fail_count}")
+
+if success_count == 0 and fail_count > 0:
+    print("❌ All messages failed. Exiting with error so GitHub Actions reports failure.")
+    sys.exit(1)
