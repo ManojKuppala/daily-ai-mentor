@@ -82,7 +82,14 @@ today = datetime.now(ist).strftime("%d %B %Y, %A")
 header = f"📰 <b>Daily World Briefing</b>\n🗓️ <i>{today}</i>\n{'━' * 28}\n\n"
 footer = f"\n{'━' * 28}\n💡 <i>Powered by Gemini AI + Google Search</i>\n📬 <i>Delivered daily at 9:00 AM IST</i>"
 
-message = header + response.text.strip() + footer
+import html
+# 1. Escape all raw text to make it 100% safe for Telegram's strict parser
+safe_body = html.escape(response.text.strip())
+# 2. Restore ONLY the bold and italic tags we instructed the AI to use
+safe_body = safe_body.replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+safe_body = safe_body.replace("&lt;i&gt;", "<i>").replace("&lt;/i&gt;", "</i>")
+
+message = header + safe_body + footer
 
 # -------------------------------
 # Send to all registered users
