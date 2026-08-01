@@ -21,7 +21,11 @@ def search_news(topics):
     
     # We'll do a quick search for each topic selected by the user
     for topic in topics:
-        query = f"latest {topic} news"
+        clean_topic = topic
+        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍"]:
+            clean_topic = clean_topic.replace(emoji, "").strip()
+            
+        query = f"latest {clean_topic} news"
         try:
             # Get top 3 news snippets for this topic
             results = ddgs.text(query, max_results=3, safesearch="moderate", timelimit="w")
