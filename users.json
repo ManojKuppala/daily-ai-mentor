@@ -51,9 +51,7 @@
     },
     "7168024869": {
         "time": "09:00",
-        "topics": [
-            "\ud83c\udf0d Global News"
-        ],
+        "topics": [],
         "active": true
     }
 }
