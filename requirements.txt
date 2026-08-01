@@ -2,3 +2,6 @@ google-genai
 requests
 flask
 gunicorn
+apscheduler
+openai
+duckduckgo-search

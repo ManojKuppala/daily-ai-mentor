@@ -1,0 +1,103 @@
+import os
+from openai import OpenAI
+from duckduckgo_search import DDGS
+from datetime import datetime, timezone, timedelta
+import html
+
+# Try to get Groq API key, otherwise fallback to a generic OpenAI env pattern if needed
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+
+# Initialize Groq client using the standard OpenAI SDK
+# Only initialize if key is present to prevent crashes on startup
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",
+    api_key=GROQ_API_KEY
+) if GROQ_API_KEY else None
+
+def search_news(topics):
+    """Searches DuckDuckGo for the latest news on the given topics."""
+    ddgs = DDGS()
+    search_results = []
+    
+    # We'll do a quick search for each topic selected by the user
+    for topic in topics:
+        query = f"latest {topic} news facts"
+        try:
+            # Get top 3 news snippets for this topic
+            results = ddgs.text(query, max_results=3, safesearch="moderate", timelimit="d")
+            for r in results:
+                search_results.append(f"[{topic}] {r.get('title')}: {r.get('body')}")
+        except Exception as e:
+            print(f"DuckDuckGo Search error for {topic}: {e}")
+            
+    return "\n".join(search_results)
+
+def generate_news(topics):
+    """Generates the daily briefing based on specific topics."""
+    if not client:
+        return "⚠️ Error: GROQ_API_KEY is not set. Please set it in your environment variables."
+        
+    if not topics:
+        topics = ["Tech & Hardware", "Startups & Business", "Global News"]
+        
+    # 1. Fetch real-time data
+    print(f"Fetching real-time data for: {topics}")
+    live_data = search_news(topics)
+    
+    # 2. Build the prompt
+    prompt = f"""
+You are an expert tech journalist and world news briefing assistant. 
+I have fetched the latest real-time search results for the user's favorite topics.
+
+USER'S SELECTED TOPICS:
+{', '.join(topics)}
+
+REAL-TIME SEARCH SNIPPETS (Use these to ground your facts!):
+{live_data}
+
+INSTRUCTIONS:
+You MUST generate exactly 5-8 crisp, fascinating news updates based on the user's topics and the search snippets provided. 
+If the search snippets don't have enough info, use your general knowledge to provide fascinating, educational facts related to their topics.
+Be precise, name real companies, specific events, or actual scientific facts.
+
+FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
+
+<b>Category Emoji Category Name</b>
+2-3 lines of real current facts, naming specific devices, startups, specs, or people. Include relevant emojis.
+
+Rules:
+- STRICTLY use HTML tags (<b> for headers, <i> for italics). Do NOT use markdown (**bold**) or numbering (1., 2.).
+- CRITICAL: NEVER use the "&" symbol (write the word "and" instead). NEVER use "<" or ">" symbols (except for the HTML tags).
+- Put a single empty line between each news block.
+"""
+
+    # 3. Call Groq
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a helpful AI news assistant that strictly outputs HTML."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1024
+        )
+        raw_text = response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"❌ Groq API Error: {e}")
+        return "❌ Error generating news. Please check Groq API limits or key."
+
+    # 4. Format and Escape
+    ist = timezone(timedelta(hours=5, minutes=30))
+    today = datetime.now(ist).strftime("%d %B %Y, %A")
+
+    header = f"📰 <b>Daily World Briefing</b>\n🗓️ <i>{today}</i>\n{'━' * 28}\n\n"
+    footer = f"\n{'━' * 28}\n💡 <i>Powered by Groq Llama-3 & DuckDuckGo Search</i>\n📬 <i>Generated for your topics</i>"
+
+    # Escape raw text to make it safe for Telegram's strict parser
+    safe_body = html.escape(raw_text)
+    # Restore ONLY the bold and italic tags we instructed the AI to use
+    safe_body = safe_body.replace("&lt;b&gt;", "<b>").replace("&lt;/b&gt;", "</b>")
+    safe_body = safe_body.replace("&lt;i&gt;", "<i>").replace("&lt;/i&gt;", "</i>")
+
+    return header + safe_body + footer
