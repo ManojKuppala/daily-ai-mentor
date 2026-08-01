@@ -21,10 +21,10 @@ def search_news(topics):
     
     # We'll do a quick search for each topic selected by the user
     for topic in topics:
-        query = f"latest {topic} news facts"
+        query = f"latest {topic} news"
         try:
             # Get top 3 news snippets for this topic
-            results = ddgs.text(query, max_results=3, safesearch="moderate", timelimit="d")
+            results = ddgs.text(query, max_results=3, safesearch="moderate", timelimit="w")
             for r in results:
                 search_results.append(f"[{topic}] {r.get('title')}: {r.get('body')}")
         except Exception as e:
@@ -45,8 +45,9 @@ def generate_news(topics):
     live_data = search_news(topics)
     
     # 2. Build the prompt
+    current_year = datetime.now().year
     prompt = f"""
-You are an expert tech journalist and world news briefing assistant. 
+You are an expert tech journalist and world news briefing assistant living in the year {current_year}. 
 I have fetched the latest real-time search results for the user's favorite topics.
 
 USER'S SELECTED TOPICS:
@@ -56,8 +57,9 @@ REAL-TIME SEARCH SNIPPETS (Use these to ground your facts!):
 {live_data}
 
 INSTRUCTIONS:
+CRITICAL: You are living in the year {current_year}. Only talk about current events. DO NOT talk about outdated events (like the iPhone 14 or COVID-19 pandemic) as if they are current.
 You MUST generate exactly 5-8 crisp, fascinating news updates based on the user's topics and the search snippets provided. 
-If the search snippets don't have enough info, use your general knowledge to provide fascinating, educational facts related to their topics.
+If the search snippets are empty or don't have enough info for a topic, state a timeless, fascinating educational fact related to the topic instead of inventing fake news.
 Be precise, name real companies, specific events, or actual scientific facts.
 
 FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
