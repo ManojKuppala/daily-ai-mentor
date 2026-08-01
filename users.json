@@ -25,7 +25,8 @@
         "topics": [
             "Tech & Hardware",
             "Startups & Business"
-        ]
+        ],
+        "active": true
     },
     "8223447799": {
         "time": "09:00",
