@@ -51,7 +51,9 @@
     },
     "7168024869": {
         "time": "09:00",
-        "topics": [],
+        "topics": [
+            "\ud83d\udcc8 Stock Market & Finance"
+        ],
         "active": true
     }
 }
