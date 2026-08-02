@@ -48,6 +48,24 @@ def send_telegram_message(chat_id, text, reply_markup=None):
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.status == 200
+    except urllib.error.HTTPError as e:
+        error_msg = e.read().decode()
+        print(f"HTTP Error sending message: {error_msg}")
+        
+        # Fallback: Strip HTML and send as plain text
+        import re
+        plain_text = re.sub('<[^<]+>', '', text)
+        payload["text"] = plain_text
+        payload.pop("parse_mode", None)
+        
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                print("Fallback plain text message sent successfully.")
+                return resp.status == 200
+        except Exception as e2:
+            print(f"Fallback also failed: {e2}")
+            return False
     except Exception as e:
         print(f"Error sending message: {e}")
         return False
