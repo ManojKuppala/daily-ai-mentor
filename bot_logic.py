@@ -112,7 +112,7 @@ Rules:
     today = datetime.now(ist).strftime("%d %B %Y, %A")
 
     header = f"📰 <b>Daily World Briefing</b>\n🗓️ <i>{today}</i>\n{'━' * 28}\n\n"
-    footer = f"\n{'━' * 28}\n💡 <i>Powered by Groq Llama-3 & Live RSS Feeds</i>\n📬 <i>Generated for your topics</i>"
+    footer = f"\n{'━' * 28}"
 
     # Escape raw text to make it safe for Telegram's strict parser
     safe_body = html.escape(raw_text)
