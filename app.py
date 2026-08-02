@@ -21,7 +21,8 @@ AVAILABLE_TOPICS = [
     "📈 Stock Market & Finance",
     "🔬 Science & Space",
     "🧠 Educational Facts & History",
-    "🌍 Global News"
+    "🌍 Global News",
+    "🏏 Cricket News"
 ]
 
 WELCOME_MESSAGE = """👋 <b>Welcome to Daily World Briefing Bot!</b>

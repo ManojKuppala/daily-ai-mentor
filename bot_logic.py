@@ -20,7 +20,8 @@ RSS_FEEDS = {
     "Stock Market & Finance": "https://feeds.bbci.co.uk/news/business/rss.xml",
     "Science & Space": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
     "Global News": "https://feeds.bbci.co.uk/news/world/rss.xml",
-    "Educational Facts & History": "https://feeds.bbci.co.uk/news/education/rss.xml"
+    "Educational Facts & History": "https://feeds.bbci.co.uk/news/education/rss.xml",
+    "Cricket News": "https://feeds.bbci.co.uk/sport/cricket/rss.xml"
 }
 
 def search_news(topics):
@@ -29,7 +30,7 @@ def search_news(topics):
     
     for topic in topics:
         clean_topic = topic
-        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍"]:
+        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍", "🏏"]:
             clean_topic = clean_topic.replace(emoji, "").strip()
             
         feed_url = RSS_FEEDS.get(clean_topic)
@@ -72,21 +73,21 @@ REAL-TIME SEARCH SNIPPETS (Use these to ground your facts!):
 
 INSTRUCTIONS:
 CRITICAL: You are living in the year {current_year}. Only talk about current events. DO NOT talk about outdated events (like the iPhone 14 or COVID-19 pandemic) as if they are current.
-You MUST generate a fast, punchy, highly readable briefing based on the search snippets provided.
-Keep it extremely concise (less text, more impact). Use 1-2 bullet points per topic. Maximum 15 words per bullet point.
+You MUST generate an engaging, highly readable briefing based on the search snippets provided.
+Use 1-2 bullet points per topic. Write 1-2 detailed, highly informative sentences per bullet point so the reader fully understands the context and importance of the news. DO NOT make it too short.
 If the search snippets are empty or don't have enough info for a topic, state a timeless, fascinating educational fact related to the topic instead of inventing fake news.
 Be precise, name real companies, specific events, or actual scientific facts.
 
 FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
 
 <b>Category Emoji Category Name</b>
-▪️ <i>Fascinating headline/fact 1 in one short punchy sentence.</i>
-▪️ <i>Fascinating headline/fact 2 in one short punchy sentence.</i>
+▪️ <i>Detailed headline/fact 1 containing enough context to be easily understood.</i>
+▪️ <i>Detailed headline/fact 2 containing enough context to be easily understood.</i>
 
 Rules:
 - STRICTLY use HTML tags (<b> for headers, <i> for italics). Do NOT use markdown (**bold**) or numbering (1., 2.).
 - CRITICAL: NEVER use the "&" symbol (write the word "and" instead). NEVER use "<" or ">" symbols (except for the HTML tags).
-- Keep descriptions extremely short, punchy, and engaging.
+- Write clearly and provide enough information to be useful.
 - Put a single empty line between each news block.
 """
 
