@@ -1,6 +1,6 @@
 import os
 from openai import OpenAI
-from duckduckgo_search import DDGS
+import feedparser
 from datetime import datetime, timezone, timedelta
 import html
 
@@ -14,25 +14,35 @@ client = OpenAI(
     api_key=GROQ_API_KEY
 ) if GROQ_API_KEY else None
 
+RSS_FEEDS = {
+    "Tech & Hardware": "https://feeds.bbci.co.uk/news/technology/rss.xml",
+    "Startups & Business": "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "Stock Market & Finance": "https://feeds.bbci.co.uk/news/business/rss.xml",
+    "Science & Space": "https://feeds.bbci.co.uk/news/science_and_environment/rss.xml",
+    "Global News": "https://feeds.bbci.co.uk/news/world/rss.xml",
+    "Educational Facts & History": "https://feeds.bbci.co.uk/news/education/rss.xml"
+}
+
 def search_news(topics):
-    """Searches DuckDuckGo for the latest news on the given topics."""
-    ddgs = DDGS()
+    """Fetches the latest news from RSS feeds for the given topics."""
     search_results = []
     
-    # We'll do a quick search for each topic selected by the user
     for topic in topics:
         clean_topic = topic
         for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍"]:
             clean_topic = clean_topic.replace(emoji, "").strip()
             
-        query = f"latest {clean_topic} news"
+        feed_url = RSS_FEEDS.get(clean_topic)
+        if not feed_url:
+            continue
+            
         try:
+            feed = feedparser.parse(feed_url)
             # Get top 3 news snippets for this topic
-            results = ddgs.text(query, max_results=3, safesearch="moderate", timelimit="w")
-            for r in results:
-                search_results.append(f"[{topic}] {r.get('title')}: {r.get('body')}")
+            for entry in feed.entries[:3]:
+                search_results.append(f"[{topic}] {entry.title}: {entry.get('summary', '')}")
         except Exception as e:
-            print(f"DuckDuckGo Search error for {topic}: {e}")
+            print(f"RSS Fetch error for {topic}: {e}")
             
     return "\n".join(search_results)
 
@@ -98,7 +108,7 @@ Rules:
     today = datetime.now(ist).strftime("%d %B %Y, %A")
 
     header = f"📰 <b>Daily World Briefing</b>\n🗓️ <i>{today}</i>\n{'━' * 28}\n\n"
-    footer = f"\n{'━' * 28}\n💡 <i>Powered by Groq Llama-3 & DuckDuckGo Search</i>\n📬 <i>Generated for your topics</i>"
+    footer = f"\n{'━' * 28}\n💡 <i>Powered by Groq Llama-3 & Live RSS Feeds</i>\n📬 <i>Generated for your topics</i>"
 
     # Escape raw text to make it safe for Telegram's strict parser
     safe_body = html.escape(raw_text)

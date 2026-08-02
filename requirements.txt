@@ -4,4 +4,4 @@ flask
 gunicorn
 apscheduler
 openai
-duckduckgo-search
+feedparser
