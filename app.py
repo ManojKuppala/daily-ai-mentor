@@ -4,6 +4,7 @@ import base64
 import urllib.request
 import urllib.parse
 from datetime import datetime, timezone, timedelta
+from functools import wraps
 from flask import Flask, request, jsonify
 from apscheduler.schedulers.background import BackgroundScheduler
 from bot_logic import generate_news
@@ -347,6 +348,98 @@ def scheduled_job():
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=scheduled_job, trigger="cron", minute="*") # Run every minute to check matches
 scheduler.start()
+
+# --- ADMIN PANEL ---
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "password123")
+
+def check_auth(username, password):
+    return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
+
+def authenticate():
+    return "<h1>Authentication Required</h1>", 401, {'WWW-Authenticate': 'Basic realm="Login Required"'}
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/admin")
+@requires_auth
+def admin_panel():
+    users, sha = get_users_from_github()
+    total_users = len(users)
+    
+    topic_counts = {}
+    for chat_id, data in users.items():
+        for topic in data.get("topics", []):
+            topic_counts[topic] = topic_counts.get(topic, 0) + 1
+            
+    html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Daily AI Mentor Admin</title>
+        <style>
+            body {{ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #121212; color: #e0e0e0; padding: 2rem; max-width: 800px; margin: 0 auto; }}
+            h1 {{ color: #ffffff; border-bottom: 2px solid #333; padding-bottom: 0.5rem; }}
+            .stat-box {{ background: rgba(255, 255, 255, 0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }}
+            .stat-number {{ font-size: 3rem; font-weight: bold; color: #4CAF50; margin: 0; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 1rem; }}
+            th, td {{ text-align: left; padding: 0.75rem; border-bottom: 1px solid #333; }}
+            th {{ color: #aaa; text-transform: uppercase; font-size: 0.85rem; }}
+            .btn-danger {{ background: #dc3545; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 10px; }}
+            .btn-danger:hover {{ background: #c82333; }}
+        </style>
+    </head>
+    <body>
+        <h1>🛡️ Admin Dashboard</h1>
+        
+        <div class="stat-box">
+            <p style="margin-top:0; color: #aaa; text-transform: uppercase;">Total Subscribed Users</p>
+            <p class="stat-number">{total_users}</p>
+        </div>
+        
+        <div class="stat-box">
+            <h3 style="margin-top:0;">📊 Topic Popularity</h3>
+            <table>
+                <tr><th>Topic</th><th>Subscribers</th></tr>
+    """
+    
+    for topic, count in sorted(topic_counts.items(), key=lambda x: x[1], reverse=True):
+        html += f"<tr><td>{topic}</td><td>{count}</td></tr>"
+        
+    html += """
+            </table>
+        </div>
+        
+        <div class="stat-box" style="border-color: #dc3545; background: rgba(220,53,69,0.05);">
+            <h3 style="color: #dc3545; margin-top:0;">⚠️ Danger Zone</h3>
+            <p>This action will clear the database of all users. This cannot be undone.</p>
+            <form action="/admin/delete_users" method="POST" onsubmit="return confirm('Are you absolutely sure you want to delete all users?');">
+                <button type="submit" class="btn-danger">🗑️ Delete All Users</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    """
+    return html
+
+@app.route("/admin/delete_users", methods=["POST"])
+@requires_auth
+def delete_users():
+    users, sha = get_users_from_github()
+    success = save_users_to_github({}, sha)
+    if success:
+        return "<h1 style='color:green; font-family:sans-serif;'>✅ Database successfully cleared!</h1><p style='font-family:sans-serif;'><a href='/admin'>Return to Admin Panel</a></p>"
+    else:
+        return "<h1 style='color:red; font-family:sans-serif;'>❌ Failed to clear database.</h1><p style='font-family:sans-serif;'>Check logs for details.</p>"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
