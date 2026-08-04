@@ -73,21 +73,21 @@ REAL-TIME SEARCH SNIPPETS (Use these to ground your facts!):
 
 INSTRUCTIONS:
 CRITICAL: You are living in the year {current_year}. Only talk about current events. DO NOT talk about outdated events (like the iPhone 14 or COVID-19 pandemic) as if they are current.
-You MUST generate an engaging, highly readable briefing based on the search snippets provided.
-Use 1-2 bullet points per topic. Write 1-2 detailed, highly informative sentences per bullet point so the reader fully understands the context and importance of the news. DO NOT make it too short.
+You MUST generate an attractive, crisp, highly readable briefing based on the search snippets provided.
+Use exactly 2 bullet points per topic. Write exactly 1 short, punchy sentence per bullet point. Eliminate ALL fluff and long run-on sentences. Keep it beautiful and easy to read.
 If the search snippets are empty or don't have enough info for a topic, state a timeless, fascinating educational fact related to the topic instead of inventing fake news.
 Be precise, name real companies, specific events, or actual scientific facts.
 
 FORMAT STRICTLY AS HTML (no markdown, no numbered lists):
 
 <b>Category Emoji Category Name</b>
-▪️ <i>Detailed headline/fact 1 containing enough context to be easily understood.</i>
-▪️ <i>Detailed headline/fact 2 containing enough context to be easily understood.</i>
+▪️ <i>Short, punchy, attractive headline 1.</i>
+▪️ <i>Short, punchy, attractive headline 2.</i>
 
 Rules:
 - STRICTLY use HTML tags (<b> for headers, <i> for italics). Do NOT use markdown (**bold**) or numbering (1., 2.).
 - CRITICAL: NEVER use the "&" symbol (write the word "and" instead). NEVER use "<" or ">" symbols (except for the HTML tags).
-- Write clearly and provide enough information to be useful.
+- Make the output incredibly easy and attractive to read at a glance.
 - Put a single empty line between each news block.
 """
 
