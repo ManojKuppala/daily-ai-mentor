@@ -350,8 +350,8 @@ scheduler.add_job(func=scheduled_job, trigger="cron", minute="*") # Run every mi
 scheduler.start()
 
 # --- ADMIN PANEL ---
-ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "password123")
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
 def check_auth(username, password):
     return username == ADMIN_USERNAME and password == ADMIN_PASSWORD
