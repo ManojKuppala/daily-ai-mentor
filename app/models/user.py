@@ -8,7 +8,7 @@ class AdminUser(UserMixin):
 
     @staticmethod
     def get(user_id):
-        if user_id == "admin":
+        if user_id == Config.ADMIN_USERNAME:
             return AdminUser(user_id)
         return None
 
