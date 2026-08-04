@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Daily AI Mentor Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 400px;
+        margin: 4rem auto;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #cbd5e1;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--card-border);
+        background: rgba(15, 23, 42, 0.6);
+        color: white;
+        font-family: 'Inter', sans-serif;
+        box-sizing: border-box;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25);
+    }
+    
+    .btn-block {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .text-center {
+        text-align: center;
+    }
+    
+    .logo-emoji {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="glass-panel text-center">
+        <div class="logo-emoji">🤖</div>
+        <h2 style="margin-bottom: 1.5rem;">Admin Login</h2>
+        
+        <form method="POST" action="{{ url_for('admin.login') }}">
+            <div class="form-group" style="text-align: left;">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="btn-primary btn-block">Sign In to Dashboard</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Daily AI Mentor Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .btn-secondary {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.2);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.2);
+    }
+    
+    .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 4rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #10b981, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        color: #94a3b8;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th, td {
+        padding: 1rem;
+        text-align: left;
+        border-bottom: 1px solid var(--card-border);
+    }
+    
+    th {
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+    
+    tr {
+        transition: background-color 0.2s ease;
+    }
+    
+    tr:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+    
+    .topic-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(139, 92, 246, 0.15);
+        color: #c4b5fd;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .danger-zone {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.05);
+        margin-top: 2rem;
+    }
+    
+    .danger-zone h3 {
+        color: #f87171;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header-row">
+    <h1>🛡️ Admin Dashboard</h1>
+    <a href="{{ url_for('admin.logout') }}" class="btn-secondary">Logout</a>
+</div>
+
+<div class="grid">
+    <div class="glass-panel">
+        <div class="stat-label">Total Subscribed Users</div>
+        <div class="stat-number">{{ total_users }}</div>
+    </div>
+    
+    <div class="glass-panel">
+        <div class="stat-label">System Status</div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 10px #10b981;"></div>
+            <span style="font-weight: 500; color: #a7f3d0;">All Systems Operational</span>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel">
+    <h3>📊 Topic Popularity</h3>
+    {% if topics %}
+    <table>
+        <thead>
+            <tr>
+                <th>Topic Category</th>
+                <th>Active Subscribers</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for topic, count in topics %}
+            <tr>
+                <td><span class="topic-badge">{{ topic }}</span></td>
+                <td style="font-weight: 600;">{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color: #94a3b8; font-style: italic;">No topic data available yet.</p>
+    {% endif %}
+</div>
+
+<div class="glass-panel danger-zone">
+    <h3>⚠️ Danger Zone</h3>
+    <p style="color: #cbd5e1; margin-bottom: 1.5rem;">This action will immediately wipe the database of all registered users. It cannot be undone.</p>
+    <form action="{{ url_for('admin.delete_users') }}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to completely wipe the user database?');">
+        <button type="submit" class="btn-danger">🗑️ Delete All Users</button>
+    </form>
+</div>
+{% endblock %}
