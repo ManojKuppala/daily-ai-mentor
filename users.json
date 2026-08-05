@@ -13,7 +13,14 @@
             "\ud83c\udfcf Cricket News"
         ],
         "active": true,
-        "goals": [],
+        "goals": [
+            {
+                "id": 1,
+                "name": "learn MERN stack",
+                "target_date": "2026-10-05",
+                "created_at": "2026-08-05"
+            }
+        ],
         "tasks": [],
         "reminders": [],
         "streaks": {
@@ -34,7 +41,7 @@
         "weekly_priority": null,
         "study_buddy": null,
         "task_id_counter": 0,
-        "goal_id_counter": 0,
+        "goal_id_counter": 1,
         "reminder_id_counter": 0
     },
     "7010812711": {
