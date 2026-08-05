@@ -22,7 +22,13 @@
             }
         ],
         "tasks": [],
-        "reminders": [],
+        "reminders": [
+            {
+                "id": 1,
+                "label": "DSA",
+                "time": "18:30"
+            }
+        ],
         "streaks": {
             "briefing": 0,
             "task": 0,
@@ -42,7 +48,7 @@
         "study_buddy": null,
         "task_id_counter": 0,
         "goal_id_counter": 1,
-        "reminder_id_counter": 0
+        "reminder_id_counter": 1
     },
     "7010812711": {
         "time": "09:00",
