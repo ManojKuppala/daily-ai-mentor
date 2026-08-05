@@ -12,7 +12,30 @@
             "\ud83e\udde0 Educational Facts & History",
             "\ud83c\udfcf Cricket News"
         ],
-        "active": true
+        "active": true,
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 0,
+            "task": 0,
+            "quiz": 1,
+            "last_briefing": null,
+            "last_task": null,
+            "last_quiz": "2026-08-05"
+        },
+        "quiz": {
+            "correct": 1,
+            "attempted": 1
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     },
     "7010812711": {
         "time": "09:00",
