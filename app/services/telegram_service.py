@@ -61,3 +61,15 @@ def send_telegram_message(chat_id, text, reply_markup=None):
             final_success = False
             
     return final_success
+
+
+def send_news_with_logging(chat_id, topics, news_text):
+    """Send news and log the delivery attempt."""
+    from app.services.delivery_log_service import add_log
+    
+    success = send_telegram_message(chat_id, news_text)
+    if success:
+        add_log(chat_id, topics, "delivered")
+    else:
+        add_log(chat_id, topics, "failed", "Message delivery failed")
+    return success

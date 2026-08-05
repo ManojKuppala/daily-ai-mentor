@@ -24,8 +24,23 @@ RSS_FEEDS = {
     "Cricket News": "https://feeds.bbci.co.uk/sport/cricket/rss.xml"
 }
 
+def dedup_topics(topics):
+    """Deduplicate topics by canonical name, preferring emoji-prefixed versions."""
+    seen = {}
+    for topic in topics:
+        # Strip emoji to get canonical key
+        canonical = topic
+        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍", "🏏"]:
+            canonical = canonical.replace(emoji, "").strip()
+        # Keep the emoji-prefixed version if we've seen this topic before
+        if canonical not in seen or len(topic) > len(seen[canonical]):
+            seen[canonical] = topic
+    return list(seen.values())
+
+
 def search_news(topics):
     """Fetches the latest news from RSS feeds for the given topics."""
+    topics = dedup_topics(topics)
     search_results = []
     
     for topic in topics:
@@ -54,6 +69,8 @@ def generate_news(topics):
         
     if not topics:
         topics = ["Tech & Hardware", "Startups & Business", "Global News"]
+    
+    topics = dedup_topics(topics)
         
     # 1. Fetch real-time data
     print(f"Fetching real-time data for: {topics}")

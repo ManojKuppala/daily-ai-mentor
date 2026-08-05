@@ -63,3 +63,37 @@ def save_users_to_github(users_data, sha=None):
     except Exception as e:
         print(f"Error saving to github: {e}")
         return False
+
+
+def delete_single_user(chat_id):
+    """Remove a single user from the database."""
+    users, sha = get_users_from_github()
+    chat_id = str(chat_id)
+    if chat_id in users:
+        del users[chat_id]
+        return save_users_to_github(users, sha)
+    return False
+
+
+def update_user_status(chat_id, status):
+    """Set a user's status to 'active' or 'paused'."""
+    users, sha = get_users_from_github()
+    chat_id = str(chat_id)
+    if chat_id in users:
+        users[chat_id]["status"] = status
+        return save_users_to_github(users, sha)
+    return False
+
+
+def normalize_users(users):
+    """Ensure all user records have required fields with defaults."""
+    for chat_id, data in users.items():
+        if "status" not in data:
+            data["status"] = "active"
+        if "joined_at" not in data:
+            data["joined_at"] = "Unknown"
+        if "topics" not in data:
+            data["topics"] = []
+        if "time" not in data:
+            data["time"] = "08:00"
+    return users

@@ -1,155 +1,289 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — Daily AI Mentor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
 
-{% block title %}Dashboard - Daily AI Mentor Admin{% endblock %}
-
-{% block extra_css %}
-<style>
-    .header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-    
-    .btn-secondary {
-        background: rgba(255,255,255,0.1);
-        color: white;
-        border: 1px solid rgba(255,255,255,0.2);
-        text-decoration: none;
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        font-size: 0.875rem;
-        transition: all 0.2s ease;
-    }
-    
-    .btn-secondary:hover {
-        background: rgba(255,255,255,0.2);
-    }
-    
-    .grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-    }
-    
-    .stat-number {
-        font-size: 4rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #10b981, #3b82f6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
-        line-height: 1;
-    }
-    
-    .stat-label {
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-size: 0.875rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        margin-bottom: 1rem;
-    }
-    
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    th, td {
-        padding: 1rem;
-        text-align: left;
-        border-bottom: 1px solid var(--card-border);
-    }
-    
-    th {
-        color: #94a3b8;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-    }
-    
-    tr {
-        transition: background-color 0.2s ease;
-    }
-    
-    tr:hover {
-        background-color: rgba(255, 255, 255, 0.02);
-    }
-    
-    .topic-badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        background: rgba(139, 92, 246, 0.15);
-        color: #c4b5fd;
-        border-radius: 9999px;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    
-    .danger-zone {
-        border-color: rgba(239, 68, 68, 0.3);
-        background: rgba(239, 68, 68, 0.05);
-        margin-top: 2rem;
-    }
-    
-    .danger-zone h3 {
-        color: #f87171;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="header-row">
-    <h1>🛡️ Admin Dashboard</h1>
-    <a href="{{ url_for('admin.logout') }}" class="btn-secondary">Logout</a>
-</div>
-
-<div class="grid">
-    <div class="glass-panel">
-        <div class="stat-label">Total Subscribed Users</div>
-        <div class="stat-number">{{ total_users }}</div>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <h2>🤖 Daily AI Mentor</h2>
+        <span>admin dashboard v2.0</span>
     </div>
-    
-    <div class="glass-panel">
-        <div class="stat-label">System Status</div>
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
-            <div style="width: 12px; height: 12px; border-radius: 50%; background-color: #10b981; box-shadow: 0 0 10px #10b981;"></div>
-            <span style="font-weight: 500; color: #a7f3d0;">All Systems Operational</span>
+    <nav class="sidebar-nav">
+        <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Overview
+        </div>
+        <div class="nav-item" data-tab="users" onclick="switchTab('users')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            Users
+        </div>
+        <div class="nav-item" data-tab="topics" onclick="switchTab('topics')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+            Topics
+        </div>
+        <div class="nav-item" data-tab="logs" onclick="switchTab('logs')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Delivery Logs
+        </div>
+        <div class="nav-item" data-tab="settings" onclick="switchTab('settings')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            Settings
+        </div>
+    </nav>
+    <div class="sidebar-footer">
+        <a href="{{ url_for('admin.logout') }}" class="btn-logout">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+        </a>
+    </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+    <div class="page-header">
+        <h1 id="page-title">Overview</h1>
+        <p id="page-subtitle">Real-time system metrics and analytics</p>
+    </div>
+
+    <!-- ===== OVERVIEW ===== -->
+    <div id="section-overview" class="section active">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Subscribers</div>
+                <div class="stat-value accent">{{ total_users }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Messages Sent Today</div>
+                <div class="stat-value violet">{{ sent_today }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Topics / User</div>
+                <div class="stat-value amber">{{ avg_topics }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">System Status</div>
+                <div class="stat-live">
+                    <span class="live-dot"></span> All Systems Operational
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-card">
+            <h3>📊 Topic Popularity</h3>
+            {% for t in topics %}
+            <div class="bar-row">
+                <div class="bar-label">{{ t.display }}</div>
+                <div class="bar-track">
+                    <div class="bar-fill" data-width="{{ (t.count / total_users * 100) if total_users > 0 else 0 }}" style="width: 0%;"></div>
+                </div>
+                <div class="bar-count">{{ t.count }}</div>
+            </div>
+            {% endfor %}
+            {% if not topics %}
+            <p style="color: var(--text-faint); font-style: italic;">No topic data available yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===== USERS ===== -->
+    <div id="section-users" class="section">
+        <div class="table-card">
+            <div class="table-toolbar">
+                <h3>All Users ({{ total_users }})</h3>
+                <div class="search-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="user-search" placeholder="Search by Chat ID..." oninput="searchUsers()">
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Chat ID</th>
+                        <th>Topics</th>
+                        <th>Status</th>
+                        <th>Delivery Time</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    {% for user in user_list %}
+                    <tr id="row-{{ user.chat_id }}">
+                        <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">{{ user.chat_id }}</td>
+                        <td>
+                            {% for topic in user.topics %}
+                            <span class="chip">{{ topic }}</span>
+                            {% endfor %}
+                            {% if not user.topics %}
+                            <span style="color: var(--text-faint); font-style: italic;">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span id="status-{{ user.chat_id }}" class="pill pill-{{ user.status }}">{{ user.status }}</span>
+                        </td>
+                        <td style="font-family: 'JetBrains Mono', monospace;">{{ user.time }} IST</td>
+                        <td>{{ user.joined_at }}</td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="btn-icon accent" title="Resend" onclick="resendUser('{{ user.chat_id }}')">📨</button>
+                                {% if user.status == 'active' %}
+                                <button id="toggle-{{ user.chat_id }}" class="btn-icon amber" title="Pause" onclick="pauseUser('{{ user.chat_id }}')">⏸</button>
+                                {% else %}
+                                <button id="toggle-{{ user.chat_id }}" class="btn-icon accent" title="Resume" onclick="resumeUser('{{ user.chat_id }}')">▶</button>
+                                {% endif %}
+                                <button class="btn-icon danger" title="Delete" onclick="deleteUser('{{ user.chat_id }}')">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% if not user_list %}
+                    <tr><td colspan="6" style="text-align: center; color: var(--text-faint); padding: 2rem;">No users registered yet.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== TOPICS ===== -->
+    <div id="section-topics" class="section">
+        <div class="chart-card" style="margin-bottom: 2rem;">
+            <h3>📊 Full Topic Breakdown</h3>
+            {% for t in topics %}
+            <div class="bar-row">
+                <div class="bar-label">{{ t.display }}</div>
+                <div class="bar-track">
+                    <div class="bar-fill" data-width="{{ (t.count / total_users * 100) if total_users > 0 else 0 }}" style="width: 0%;"></div>
+                </div>
+                <div class="bar-count">{{ t.count }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="table-card">
+            <div class="table-toolbar">
+                <h3>Topic Details</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Subscribers</th>
+                        <th>% of Total Users</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in topics %}
+                    <tr>
+                        <td><span class="chip">{{ t.display }}</span></td>
+                        <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">{{ t.count }}</td>
+                        <td style="font-family: 'JetBrains Mono', monospace;">{{ "%.0f"|format(t.count / total_users * 100) if total_users > 0 else 0 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== DELIVERY LOGS ===== -->
+    <div id="section-logs" class="section">
+        <div class="table-card">
+            <div class="table-toolbar">
+                <h3>Recent Deliveries ({{ log_total }})</h3>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterLogs(this, 'all')">All</button>
+                    <button class="filter-tab" onclick="filterLogs(this, 'delivered')">Delivered</button>
+                    <button class="filter-tab" onclick="filterLogs(this, 'failed')">Failed</button>
+                </div>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Recipient</th>
+                        <th>Topics</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody id="logs-tbody">
+                    {% for log in logs %}
+                    <tr class="log-row" data-status="{{ log.status }}">
+                        <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">{{ log.sent_at }}</td>
+                        <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">{{ log.chat_id }}</td>
+                        <td>
+                            {% for topic in log.topics %}
+                            <span class="chip">{{ topic }}</span>
+                            {% endfor %}
+                        </td>
+                        <td><span class="pill pill-{{ log.status }}">{{ log.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not logs %}
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-faint); padding: 2rem;">No delivery logs yet. Logs are recorded when news is sent.</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===== SETTINGS ===== -->
+    <div id="section-settings" class="section">
+        <div class="chart-card">
+            <h3>⚙️ Current Configuration</h3>
+            <table class="config-table">
+                <tr><td>GITHUB_REPO</td><td>{{ config.GITHUB_REPO }}</td></tr>
+                <tr><td>USERS_FILE</td><td>{{ config.USERS_FILE }}</td></tr>
+                <tr><td>AVAILABLE_TOPICS</td><td>{{ config.AVAILABLE_TOPICS | length }} categories configured</td></tr>
+                <tr><td>BOT_TOKEN</td><td>{{ '••••••' + config.BOT_TOKEN[-6:] if config.BOT_TOKEN else 'Not set' }}</td></tr>
+                <tr><td>GROQ_API_KEY</td><td>{{ 'Configured ✓' if config.GITHUB_TOKEN else 'Not set' }}</td></tr>
+            </table>
+        </div>
+
+        <div class="danger-zone">
+            <h3>⚠️ Danger Zone</h3>
+            <p style="color: var(--text-dim); margin: 1rem 0 1.25rem;">This action will immediately and permanently delete all registered users from the database. This cannot be undone.</p>
+            <button class="btn btn-danger" onclick="openDeleteModal()">🗑️ Delete All Users</button>
+        </div>
+    </div>
+</main>
+
+<!-- DELETE MODAL -->
+<div id="delete-modal" class="modal-overlay">
+    <div class="modal">
+        <h3>⚠️ Confirm Destructive Action</h3>
+        <p>You are about to permanently delete <strong>all users</strong> from the database. This action is irreversible.</p>
+        <p>Type <code style="color: var(--red); font-family: 'JetBrains Mono', monospace; background: rgba(255,107,107,0.1); padding: 0.15rem 0.4rem; border-radius: 4px;">DELETE</code> below to confirm:</p>
+        <input type="text" id="delete-confirm-input" placeholder="Type DELETE to confirm" oninput="checkDeleteConfirmation()" autocomplete="off">
+        <div class="modal-actions">
+            <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
+            <button id="delete-confirm-btn" class="btn btn-danger" onclick="confirmDeleteAll()" disabled>Delete All Users</button>
         </div>
     </div>
 </div>
 
-<div class="glass-panel">
-    <h3>📊 Topic Popularity</h3>
-    {% if topics %}
-    <table>
-        <thead>
-            <tr>
-                <th>Topic Category</th>
-                <th>Active Subscribers</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for topic, count in topics %}
-            <tr>
-                <td><span class="topic-badge">{{ topic }}</span></td>
-                <td style="font-weight: 600;">{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p style="color: #94a3b8; font-style: italic;">No topic data available yet.</p>
-    {% endif %}
-</div>
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="toast-container"></div>
 
-<div class="glass-panel danger-zone">
-    <h3>⚠️ Danger Zone</h3>
-    <p style="color: #cbd5e1; margin-bottom: 1.5rem;">This action will immediately wipe the database of all registered users. It cannot be undone.</p>
-    <form action="{{ url_for('admin.delete_users') }}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to completely wipe the user database?');">
-        <button type="submit" class="btn-danger">🗑️ Delete All Users</button>
-    </form>
-</div>
-{% endblock %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+<script>
+// Log filtering
+function filterLogs(btn, status) {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.log-row').forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
+</body>
+</html>
