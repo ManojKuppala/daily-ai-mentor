@@ -27,6 +27,11 @@
                 "id": 1,
                 "label": "DSA",
                 "time": "18:30"
+            },
+            {
+                "id": 2,
+                "label": "MERN stack",
+                "time": "21:30"
             }
         ],
         "streaks": {
@@ -48,7 +53,7 @@
         "study_buddy": null,
         "task_id_counter": 0,
         "goal_id_counter": 1,
-        "reminder_id_counter": 1
+        "reminder_id_counter": 2
     },
     "7010812711": {
         "time": "09:00",
