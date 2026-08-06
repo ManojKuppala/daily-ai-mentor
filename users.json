@@ -2,8 +2,6 @@
     "6690855328": {
         "time": "07:57",
         "topics": [
-            "Tech & Hardware",
-            "Startups & Business",
             "\ud83d\udcbb Tech & Hardware",
             "\ud83d\ude80 Startups & Business",
             "\ud83d\udcc8 Stock Market & Finance",
@@ -40,10 +38,10 @@
             }
         ],
         "streaks": {
-            "briefing": 0,
+            "briefing": 1,
             "task": 0,
             "quiz": 1,
-            "last_briefing": null,
+            "last_briefing": "2026-08-06",
             "last_task": null,
             "last_quiz": "2026-08-05"
         },
