@@ -74,7 +74,9 @@
         },
         "mood_today": "\ud83d\ude10",
         "mood_date": "2026-08-06",
-        "journal": {},
+        "journal": {
+            "2026-08-06": "/routine"
+        },
         "weekly_priority": "Complete the AI bot project",
         "study_buddy": null,
         "task_id_counter": 4,
