@@ -96,4 +96,19 @@ def normalize_users(users):
             data["topics"] = []
         if "time" not in data:
             data["time"] = "08:00"
+        # Deduplicate topics: keep emoji-prefixed version, remove plain duplicates
+        data["topics"] = _dedup_user_topics(data["topics"])
     return users
+
+
+def _dedup_user_topics(topics):
+    """Remove duplicate topics, keeping the emoji-prefixed version."""
+    seen = {}
+    for topic in topics:
+        canonical = topic
+        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍", "🏏"]:
+            canonical = canonical.replace(emoji, "").strip()
+        # Prefer the longer (emoji-prefixed) version
+        if canonical not in seen or len(topic) > len(seen[canonical]):
+            seen[canonical] = topic
+    return list(seen.values())
