@@ -28,6 +28,15 @@
                 "date": "2026-08-06",
                 "recurring": null,
                 "carried_over": false
+            },
+            {
+                "id": 3,
+                "text": "Apply for off-campus jobs",
+                "goal_id": null,
+                "status": "pending",
+                "date": "2026-08-06",
+                "recurring": null,
+                "carried_over": false
             }
         ],
         "reminders": [
@@ -64,7 +73,7 @@
         "journal": {},
         "weekly_priority": "Complete the AI bot project",
         "study_buddy": null,
-        "task_id_counter": 2,
+        "task_id_counter": 3,
         "goal_id_counter": 1,
         "reminder_id_counter": 3,
         "status": "active",
