@@ -56,43 +56,5 @@
         "reminder_id_counter": 2,
         "status": "active",
         "joined_at": "Unknown"
-    },
-    "7168024869": {
-        "time": "09:00",
-        "topics": [
-            "\ud83d\udcc8 Stock Market & Finance",
-            "\ud83d\udcbb Tech & Hardware",
-            "\ud83d\ude80 Startups & Business",
-            "\ud83e\udde0 Educational Facts & History",
-            "\ud83c\udf0d Global News",
-            "\ud83c\udfcf Cricket News",
-            "\ud83d\udd2c Science & Space"
-        ],
-        "active": true,
-        "status": "active",
-        "joined_at": "Unknown",
-        "goals": [],
-        "tasks": [],
-        "reminders": [],
-        "streaks": {
-            "briefing": 0,
-            "task": 0,
-            "quiz": 0,
-            "last_briefing": null,
-            "last_task": null,
-            "last_quiz": null
-        },
-        "quiz": {
-            "correct": 0,
-            "attempted": 0
-        },
-        "mood_today": null,
-        "mood_date": null,
-        "journal": {},
-        "weekly_priority": null,
-        "study_buddy": null,
-        "task_id_counter": 0,
-        "goal_id_counter": 0,
-        "reminder_id_counter": 0
     }
 }
