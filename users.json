@@ -53,14 +53,41 @@
         "study_buddy": null,
         "task_id_counter": 0,
         "goal_id_counter": 1,
-        "reminder_id_counter": 2
+        "reminder_id_counter": 2,
+        "status": "active",
+        "joined_at": "Unknown"
     },
     "7010812711": {
         "time": "09:00",
         "topics": [
             "Tech & Hardware",
             "Startups & Business"
-        ]
+        ],
+        "status": "active",
+        "joined_at": "Unknown",
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 0,
+            "task": 0,
+            "quiz": 0,
+            "last_briefing": null,
+            "last_task": null,
+            "last_quiz": null
+        },
+        "quiz": {
+            "correct": 0,
+            "attempted": 0
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     },
     "7429179677": {
         "time": "07:00",
@@ -72,14 +99,64 @@
             "\ud83c\udf0d Global News",
             "\ud83d\ude80 Startups & Business"
         ],
-        "active": true
+        "active": true,
+        "status": "active",
+        "joined_at": "Unknown",
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 1,
+            "task": 0,
+            "quiz": 0,
+            "last_briefing": "2026-08-06",
+            "last_task": null,
+            "last_quiz": null
+        },
+        "quiz": {
+            "correct": 0,
+            "attempted": 0
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     },
     "8223447799": {
         "time": "09:00",
         "topics": [
             "Tech & Hardware",
             "Startups & Business"
-        ]
+        ],
+        "status": "active",
+        "joined_at": "Unknown",
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 0,
+            "task": 0,
+            "quiz": 0,
+            "last_briefing": null,
+            "last_task": null,
+            "last_quiz": null
+        },
+        "quiz": {
+            "correct": 0,
+            "attempted": 0
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     },
     "5680564959": {
         "time": "07:00",
@@ -92,7 +169,32 @@
             "\ud83d\udd2c Science & Space",
             "\ud83c\udfcf Cricket News"
         ],
-        "active": true
+        "active": true,
+        "status": "active",
+        "joined_at": "Unknown",
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 1,
+            "task": 0,
+            "quiz": 0,
+            "last_briefing": "2026-08-06",
+            "last_task": null,
+            "last_quiz": null
+        },
+        "quiz": {
+            "correct": 0,
+            "attempted": 0
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     },
     "7168024869": {
         "time": "09:00",
@@ -105,6 +207,31 @@
             "\ud83c\udfcf Cricket News",
             "\ud83d\udd2c Science & Space"
         ],
-        "active": true
+        "active": true,
+        "status": "active",
+        "joined_at": "Unknown",
+        "goals": [],
+        "tasks": [],
+        "reminders": [],
+        "streaks": {
+            "briefing": 0,
+            "task": 0,
+            "quiz": 0,
+            "last_briefing": null,
+            "last_task": null,
+            "last_quiz": null
+        },
+        "quiz": {
+            "correct": 0,
+            "attempted": 0
+        },
+        "mood_today": null,
+        "mood_date": null,
+        "journal": {},
+        "weekly_priority": null,
+        "study_buddy": null,
+        "task_id_counter": 0,
+        "goal_id_counter": 0,
+        "reminder_id_counter": 0
     }
 }
