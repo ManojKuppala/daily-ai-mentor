@@ -51,8 +51,8 @@
             "correct": 1,
             "attempted": 1
         },
-        "mood_today": null,
-        "mood_date": null,
+        "mood_today": "\ud83d\ude10",
+        "mood_date": "2026-08-06",
         "journal": {},
         "weekly_priority": "Complete the AI bot project",
         "study_buddy": null,
