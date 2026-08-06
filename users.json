@@ -19,17 +19,7 @@
                 "created_at": "2026-08-05"
             }
         ],
-        "tasks": [
-            {
-                "id": 1,
-                "text": "Remove all the unnecessary features in the bot",
-                "goal_id": null,
-                "status": "skipped",
-                "date": "2026-08-06",
-                "recurring": null,
-                "carried_over": false
-            }
-        ],
+        "tasks": [],
         "reminders": [
             {
                 "id": 1,
