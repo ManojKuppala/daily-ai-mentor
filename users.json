@@ -49,7 +49,7 @@
         "mood_today": null,
         "mood_date": null,
         "journal": {},
-        "weekly_priority": null,
+        "weekly_priority": "Complete the AI bot project",
         "study_buddy": null,
         "task_id_counter": 0,
         "goal_id_counter": 1,
