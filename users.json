@@ -24,7 +24,7 @@
                 "id": 1,
                 "text": "Remove all the unnecessary features in the bot",
                 "goal_id": null,
-                "status": "pending",
+                "status": "skipped",
                 "date": "2026-08-06",
                 "recurring": null,
                 "carried_over": false
