@@ -32,6 +32,11 @@
                 "id": 2,
                 "label": "MERN stack",
                 "time": "21:30"
+            },
+            {
+                "id": 3,
+                "label": "Sample",
+                "time": "07:58"
             }
         ],
         "streaks": {
@@ -53,7 +58,7 @@
         "study_buddy": null,
         "task_id_counter": 0,
         "goal_id_counter": 1,
-        "reminder_id_counter": 2,
+        "reminder_id_counter": 3,
         "status": "active",
         "joined_at": "Unknown"
     }
