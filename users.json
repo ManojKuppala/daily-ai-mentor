@@ -25,27 +25,27 @@
                 "text": "Remove all the unnecessary features from the telegram bot",
                 "goal_id": null,
                 "status": "pending",
-                "date": "2026-08-06",
+                "date": "2026-08-07",
                 "recurring": null,
-                "carried_over": false
+                "carried_over": true
             },
             {
                 "id": 3,
                 "text": "Apply for off-campus jobs",
                 "goal_id": null,
                 "status": "pending",
-                "date": "2026-08-06",
+                "date": "2026-08-07",
                 "recurring": null,
-                "carried_over": false
+                "carried_over": true
             },
             {
                 "id": 4,
                 "text": "L&T , Accenture, HCL",
                 "goal_id": null,
                 "status": "pending",
-                "date": "2026-08-06",
+                "date": "2026-08-07",
                 "recurring": null,
-                "carried_over": false
+                "carried_over": true
             }
         ],
         "reminders": [
@@ -61,10 +61,10 @@
             }
         ],
         "streaks": {
-            "briefing": 1,
+            "briefing": 2,
             "task": 0,
             "quiz": 2,
-            "last_briefing": "2026-08-06",
+            "last_briefing": "2026-08-07",
             "last_task": null,
             "last_quiz": "2026-08-06"
         },
