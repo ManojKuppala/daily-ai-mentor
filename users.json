@@ -63,14 +63,14 @@
         "streaks": {
             "briefing": 4,
             "task": 0,
-            "quiz": 2,
+            "quiz": 1,
             "last_briefing": "2026-08-09",
             "last_task": null,
-            "last_quiz": "2026-08-06"
+            "last_quiz": "2026-08-09"
         },
         "quiz": {
-            "correct": 3,
-            "attempted": 4
+            "correct": 4,
+            "attempted": 5
         },
         "mood_today": "\ud83d\ude10",
         "mood_date": "2026-08-06",
