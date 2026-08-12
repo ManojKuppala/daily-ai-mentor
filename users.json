@@ -58,6 +58,11 @@
                 "id": 2,
                 "label": "MERN stack",
                 "time": "21:30"
+            },
+            {
+                "id": 4,
+                "label": "I am neo Infosys",
+                "time": "23:00"
             }
         ],
         "streaks": {
@@ -81,7 +86,7 @@
         "study_buddy": null,
         "task_id_counter": 4,
         "goal_id_counter": 1,
-        "reminder_id_counter": 3,
+        "reminder_id_counter": 4,
         "status": "active",
         "joined_at": "Unknown"
     },
