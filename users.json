@@ -50,11 +50,6 @@
         ],
         "reminders": [
             {
-                "id": 1,
-                "label": "DSA",
-                "time": "18:30"
-            },
-            {
                 "id": 2,
                 "label": "MERN stack",
                 "time": "21:30"
