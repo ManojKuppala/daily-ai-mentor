@@ -48,13 +48,7 @@
                 "carried_over": true
             }
         ],
-        "reminders": [
-            {
-                "id": 2,
-                "label": "MERN stack",
-                "time": "21:30"
-            }
-        ],
+        "reminders": [],
         "streaks": {
             "briefing": 18,
             "task": 0,
