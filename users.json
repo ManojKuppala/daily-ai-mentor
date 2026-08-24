@@ -37,15 +37,6 @@
                 "date": "2026-08-07",
                 "recurring": null,
                 "carried_over": true
-            },
-            {
-                "id": 4,
-                "text": "L&T , Accenture, HCL",
-                "goal_id": null,
-                "status": "skipped",
-                "date": "2026-08-07",
-                "recurring": null,
-                "carried_over": true
             }
         ],
         "reminders": [],
