@@ -28,15 +28,6 @@
                 "date": "2026-08-07",
                 "recurring": null,
                 "carried_over": true
-            },
-            {
-                "id": 3,
-                "text": "Apply for off-campus jobs",
-                "goal_id": null,
-                "status": "pending",
-                "date": "2026-08-07",
-                "recurring": null,
-                "carried_over": true
             }
         ],
         "reminders": [],
