@@ -19,17 +19,7 @@
                 "created_at": "2026-08-05"
             }
         ],
-        "tasks": [
-            {
-                "id": 2,
-                "text": "Remove all the unnecessary features from the telegram bot",
-                "goal_id": null,
-                "status": "pending",
-                "date": "2026-08-07",
-                "recurring": null,
-                "carried_over": true
-            }
-        ],
+        "tasks": [],
         "reminders": [],
         "streaks": {
             "briefing": 19,
