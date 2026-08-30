@@ -108,19 +108,39 @@ Rules:
 - Put a single empty line between each news block.
 """
 
-    # 3. Call Groq with fallback models
-    models_to_try = [
-        "llama-3.1-8b-instant",
-        "llama-3.1-70b-versatile",
-        "llama3-70b-8192",
-        "llama3-8b-8192",
-        "mixtral-8x7b-32768"
+    # 3. Call Groq with dynamically discovered active models
+    models_to_try = []
+    try:
+        available_models = client.models.list()
+        for m in available_models.data:
+            m_id = m.id.lower()
+            # filter out non-chat models (audio, whisper, guard, embeddings)
+            if any(skip in m_id for skip in ["whisper", "embed", "guard", "audio", "tts", "moderation"]):
+                continue
+            models_to_try.append(m.id)
+        print(f"🔍 Discovered {len(models_to_try)} active Groq models: {models_to_try}")
+    except Exception as e:
+        print(f"⚠️ Could not fetch models list from Groq: {e}")
+
+    # Fallback list of modern models if list() was unreachable
+    fallbacks = [
+        "llama-3.3-70b-versatile",
+        "llama-3.2-3b-preview",
+        "llama-3.2-1b-preview",
+        "deepseek-r1-distill-llama-70b",
+        "qwen-2.5-32b",
+        "gemma2-9b-it"
     ]
+    for fb in fallbacks:
+        if fb not in models_to_try:
+            models_to_try.append(fb)
+
     raw_text = None
     last_error = None
 
     for model_name in models_to_try:
         try:
+            print(f"🤖 Attempting generation with Groq model: {model_name}")
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
@@ -132,6 +152,7 @@ Rules:
             )
             raw_text = response.choices[0].message.content.strip()
             if raw_text:
+                print(f"✅ Success with model: {model_name}")
                 break
         except Exception as e:
             last_error = e
@@ -140,7 +161,7 @@ Rules:
 
     if not raw_text:
         print(f"❌ All Groq models failed. Last Error: {last_error}")
-        return f"❌ <b>Error generating news:</b> {str(last_error)}\n\nPlease check your GROQ_API_KEY on Render or ensure you haven't hit the rate limits."
+        return "❌ <i>Unable to generate daily briefing right now. Please check back shortly.</i>"
 
     # 4. Format and Escape
     ist = timezone(timedelta(hours=5, minutes=30))

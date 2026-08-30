@@ -7,7 +7,6 @@ from app.services.github_service import get_users_from_github, save_users_to_git
 from app.services.telegram_service import send_telegram_message, send_news_with_logging
 from app.services.news_service import generate_news
 from app.services import student_service as stu
-from app.services import quiz_service
 
 bot_bp = Blueprint('bot', __name__)
 
@@ -20,7 +19,7 @@ WELCOME_MESSAGE = """👋 <b>Welcome to Daily AI Mentor!</b>
 
 🤖 <b>Created by Manoj Kuppala</b>
 
-📰 Your personal <b>daily companion</b> for news, goals, tasks, quizzes, and more!
+📰 Your personal <b>daily companion</b> for news, goals, tasks, and more!
 
 Use the menu below to get started:"""
 
@@ -28,14 +27,12 @@ def get_main_menu():
     return {"inline_keyboard": [
         [{"text": "📚 Choose Topics", "callback_data": "menu_topics"},
          {"text": "⏰ Set Delivery Time", "callback_data": "menu_time"}],
-        [{"text": "⚡ Get News Now", "callback_data": "action_get_news"},
-         {"text": "🧠 Daily Quiz", "callback_data": "action_quiz"}],
+        [{"text": "⚡ Get News Now", "callback_data": "action_get_news"}],
         [{"text": "🎯 My Goals", "callback_data": "menu_goals"},
          {"text": "📋 My Tasks", "callback_data": "menu_tasks"}],
         [{"text": "📊 Progress", "callback_data": "action_progress"},
          {"text": "⏰ Reminders", "callback_data": "menu_reminders"}],
-        [{"text": "📝 Journal", "callback_data": "action_journal"},
-         {"text": "📌 Week Priority", "callback_data": "action_weekgoal"}],
+        [{"text": "📌 Week Priority", "callback_data": "action_weekgoal"}],
     ]}
 
 def get_topics_keyboard(user_topics):
@@ -84,12 +81,7 @@ def get_reminders_keyboard(user_data):
     keyboard.append([{"text": "🔙 Main Menu", "callback_data": "main_menu"}])
     return {"inline_keyboard": keyboard}
 
-def get_mood_keyboard():
-    return {"inline_keyboard": [[
-        {"text": "🙂 Good", "callback_data": "mood_🙂"},
-        {"text": "😐 Okay", "callback_data": "mood_😐"},
-        {"text": "😔 Low", "callback_data": "mood_😔"},
-    ]]}
+
 
 def _create_new_user():
     ist = timezone(timedelta(hours=5, minutes=30))
@@ -181,13 +173,7 @@ def webhook():
                 send_telegram_message(chat_id, "Invalid time format. Use HH:MM (e.g., 18:00)")
             return "OK", 200
 
-        elif state == "awaiting_journal":
-            stu.add_journal_entry(user, text)
-            _clear_state(chat_id)
-            users[chat_id] = user
-            save_users_to_github(users, sha)
-            send_telegram_message(chat_id, "📝 Journal entry saved. Nice reflection!", get_main_menu())
-            return "OK", 200
+
 
         elif state == "awaiting_weekgoal":
             stu.set_weekly_priority(user, text)
@@ -233,11 +219,6 @@ def webhook():
             _set_state(chat_id, "awaiting_task_text")
             send_telegram_message(chat_id, "📋 What task do you want to add?\n\nType it below:")
 
-        elif text.startswith("/quiz"):
-            quiz = quiz_service.generate_daily_quiz()
-            msg = quiz_service.format_quiz_question(quiz)
-            send_telegram_message(chat_id, msg, quiz_service.get_quiz_keyboard())
-
         elif text.startswith("/progress") or text.startswith("/streaks"):
             send_telegram_message(chat_id, stu.format_progress(user), get_main_menu())
 
@@ -247,12 +228,7 @@ def webhook():
         elif text.startswith("/routine"):
             send_telegram_message(chat_id, stu.format_reminders_list(user), get_reminders_keyboard(user))
 
-        elif text.startswith("/mood"):
-            send_telegram_message(chat_id, "How are you feeling today?", get_mood_keyboard())
 
-        elif text.startswith("/journal"):
-            _set_state(chat_id, "awaiting_journal")
-            send_telegram_message(chat_id, "📝 How did today go? Write a one-line reflection:")
 
         elif text.startswith("/weekgoal"):
             _set_state(chat_id, "awaiting_weekgoal")
@@ -369,18 +345,6 @@ def webhook():
                 save_users_to_github(users, sha)
                 send_telegram_message(chat_id, "🗑 Task deleted.", get_tasks_keyboard(user))
 
-        # --- QUIZ ---
-        elif data == "action_quiz":
-            quiz = quiz_service.generate_daily_quiz()
-            msg = quiz_service.format_quiz_question(quiz)
-            send_telegram_message(chat_id, msg, quiz_service.get_quiz_keyboard())
-        elif data.startswith("quiz_"):
-            answer_idx = int(data.replace("quiz_", ""))
-            is_correct, feedback = quiz_service.check_answer(user, answer_idx)
-            users[chat_id] = user
-            save_users_to_github(users, sha)
-            send_telegram_message(chat_id, feedback, get_main_menu())
-
         # --- PROGRESS ---
         elif data == "action_progress":
             send_telegram_message(chat_id, stu.format_progress(user), get_main_menu())
@@ -398,25 +362,7 @@ def webhook():
                 save_users_to_github(users, sha)
                 send_telegram_message(chat_id, "✅ Reminder removed.", get_reminders_keyboard(user))
 
-        # --- MOOD ---
-        elif data.startswith("mood_"):
-            mood = data.replace("mood_", "")
-            stu.set_mood(user, mood)
-            users[chat_id] = user
-            save_users_to_github(users, sha)
-            response = "Thanks! "
-            if mood == "😔":
-                response += "Take it easy today. Even small steps count. 💙"
-            elif mood == "😐":
-                response += "Steady goes it. One task at a time. 👍"
-            else:
-                response += "Great to hear! Let's make today count! 🔥"
-            send_telegram_message(chat_id, response, get_main_menu())
 
-        # --- JOURNAL ---
-        elif data == "action_journal":
-            _set_state(chat_id, "awaiting_journal")
-            send_telegram_message(chat_id, "📝 How did today go? Write a one-line reflection:")
 
         # --- WEEK PRIORITY ---
         elif data == "action_weekgoal":

@@ -1,4 +1,4 @@
-"""Student companion features: goals, tasks, streaks, quiz, mood, journal."""
+"""Student companion features: goals, tasks, streaks."""
 
 from datetime import datetime, timezone, timedelta
 import random
@@ -22,13 +22,9 @@ def ensure_student_fields(user_data):
         "tasks": [],
         "reminders": [],
         "streaks": {
-            "briefing": 0, "task": 0, "quiz": 0,
-            "last_briefing": None, "last_task": None, "last_quiz": None
+            "briefing": 0, "task": 0,
+            "last_briefing": None, "last_task": None
         },
-        "quiz": {"correct": 0, "attempted": 0},
-        "mood_today": None,
-        "mood_date": None,
-        "journal": {},
         "weekly_priority": None,
         "study_buddy": None,
         "task_id_counter": 0,
@@ -288,7 +284,7 @@ def format_reminders_list(user_data):
 # ===================================================================
 
 def update_streak(user_data, streak_type):
-    """Update a streak (briefing, task, or quiz). Call when the action happens."""
+    """Update a streak (briefing or task). Call when the action happens."""
     user_data = ensure_student_fields(user_data)
     streaks = user_data["streaks"]
     today = _today_str()
@@ -324,7 +320,7 @@ def check_milestone(count, streak_type):
         50: "Half-century",
         100: "Legendary"
     }
-    type_labels = {"briefing": "📰 Briefing", "task": "✅ Task", "quiz": "🧠 Quiz"}
+    type_labels = {"briefing": "📰 Briefing", "task": "✅ Task"}
     label = type_labels.get(streak_type, streak_type)
     
     if count in milestones:
@@ -340,7 +336,6 @@ def format_streaks(user_data):
         "🔥 <b>Your Streaks</b>\n",
         f"  📰 Briefing: <b>{s['briefing']} day{'s' if s['briefing'] != 1 else ''}</b>",
         f"  ✅ Tasks: <b>{s['task']} day{'s' if s['task'] != 1 else ''}</b>",
-        f"  🧠 Quiz: <b>{s['quiz']} day{'s' if s['quiz'] != 1 else ''}</b>",
     ]
     return "\n".join(lines)
 
@@ -366,7 +361,6 @@ def format_progress(user_data):
     user_data = ensure_student_fields(user_data)
     done, total, rate = get_daily_completion_rate(user_data)
     s = user_data["streaks"]
-    q = user_data["quiz"]
     
     lines = [
         "📊 <b>Your Progress</b>\n",
@@ -375,15 +369,7 @@ def format_progress(user_data):
         f"🔥 <b>Streaks</b>",
         f"  📰 Briefing: {s['briefing']} days",
         f"  ✅ Tasks: {s['task']} days",
-        f"  🧠 Quiz: {s['quiz']} days",
-        "",
-        f"🧠 <b>Quiz Stats</b>",
-        f"  Correct: {q['correct']}/{q['attempted']}",
     ]
-    
-    if q["attempted"] > 0:
-        accuracy = round(q["correct"] / q["attempted"] * 100)
-        lines.append(f"  Accuracy: {accuracy}%")
     
     goals = get_goals(user_data)
     if goals:
@@ -400,7 +386,6 @@ def generate_weekly_summary(user_data):
     user_data = ensure_student_fields(user_data)
     today = _today_str()
     s = user_data["streaks"]
-    q = user_data["quiz"]
     
     # Count this week's completed tasks
     week_start = (_now_ist().date() - timedelta(days=7)).strftime("%Y-%m-%d")
@@ -412,12 +397,8 @@ def generate_weekly_summary(user_data):
         f"━{'━' * 26}",
         "",
         f"✅ <b>Tasks completed this week:</b> {len(week_tasks)}",
-        f"🔥 <b>Current streaks:</b> Briefing {s['briefing']}d | Tasks {s['task']}d | Quiz {s['quiz']}d",
+        f"🔥 <b>Current streaks:</b> Briefing {s['briefing']}d | Tasks {s['task']}d",
     ]
-    
-    if q["attempted"] > 0:
-        accuracy = round(q["correct"] / q["attempted"] * 100)
-        lines.append(f"🧠 <b>Quiz accuracy:</b> {accuracy}% ({q['correct']}/{q['attempted']})")
     
     goals = get_goals(user_data)
     if goals:
@@ -429,11 +410,7 @@ def generate_weekly_summary(user_data):
     if wp:
         lines.append(f"\n📌 Weekly priority was: <b>{wp}</b>")
     
-    # Journal entries this week
-    journal = user_data.get("journal", {})
-    week_entries = {k: v for k, v in journal.items() if k >= week_start}
-    if week_entries:
-        lines.append(f"\n📝 You journaled {len(week_entries)} day{'s' if len(week_entries) != 1 else ''} this week")
+
     
     # Motivational closer
     lines.append("")
@@ -476,38 +453,6 @@ def generate_motivational_line(user_data):
         lines = [random.choice(defaults)]
     
     return random.choice(lines)
-
-
-# ===================================================================
-#  MOOD
-# ===================================================================
-
-def set_mood(user_data, mood):
-    """Record today's mood (emoji)."""
-    user_data = ensure_student_fields(user_data)
-    user_data["mood_today"] = mood
-    user_data["mood_date"] = _today_str()
-    return True
-
-
-def get_mood(user_data):
-    """Get today's mood, or None if not logged."""
-    user_data = ensure_student_fields(user_data)
-    if user_data.get("mood_date") == _today_str():
-        return user_data.get("mood_today")
-    return None
-
-
-# ===================================================================
-#  JOURNAL
-# ===================================================================
-
-def add_journal_entry(user_data, text):
-    """Add a one-line journal entry for today."""
-    user_data = ensure_student_fields(user_data)
-    today = _today_str()
-    user_data["journal"][today] = text.strip()
-    return True
 
 
 # ===================================================================
