@@ -5,12 +5,20 @@
         "joined_at": "2026-08-05",
         "goals": [],
         "tasks": [],
-        "reminders": [],
+        "reminders": [
+            {
+                "id": 1,
+                "time": "17:30",
+                "label": "DSA",
+                "daily": true,
+                "created_date": "2026-08-31"
+            }
+        ],
         "weekly_priority": null,
         "deep_work": null,
         "task_id_counter": 2,
         "goal_id_counter": 0,
-        "reminder_id_counter": 0
+        "reminder_id_counter": 1
     },
     "7168024869": {
         "time": "08:30",
