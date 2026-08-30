@@ -3,7 +3,14 @@
         "time": "08:30",
         "status": "active",
         "joined_at": "2026-08-05",
-        "goals": [],
+        "goals": [
+            {
+                "id": 1,
+                "name": "Arrays, Hash Set, Map in JavaScript",
+                "target_date": "2026-09-07",
+                "created_date": "2026-08-31"
+            }
+        ],
         "tasks": [],
         "reminders": [
             {
@@ -31,7 +38,7 @@
         "weekly_priority": null,
         "deep_work": null,
         "task_id_counter": 2,
-        "goal_id_counter": 0,
+        "goal_id_counter": 1,
         "reminder_id_counter": 4
     },
     "7168024869": {
