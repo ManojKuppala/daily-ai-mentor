@@ -3,20 +3,13 @@
         "time": "08:30",
         "status": "active",
         "joined_at": "2026-08-05",
-        "goals": [
-            {
-                "id": 1,
-                "name": "Learn MERN Stack",
-                "target_date": "2026-10-05",
-                "created_date": "2026-08-05"
-            }
-        ],
+        "goals": [],
         "tasks": [],
         "reminders": [],
-        "weekly_priority": "Complete the AI bot project",
+        "weekly_priority": null,
         "deep_work": null,
         "task_id_counter": 0,
-        "goal_id_counter": 1,
+        "goal_id_counter": 0,
         "reminder_id_counter": 0
     },
     "7168024869": {
