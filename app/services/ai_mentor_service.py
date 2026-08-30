@@ -68,13 +68,15 @@ Analyze the user's message and return ONLY a valid JSON object with the followin
   "mentor_response": "A direct, crisp, inspiring 1-2 sentence mentor response confirming the action or offering sharp guidance. Format in clean HTML (<b>bold</b>, <i>italic</i>)."
 }}
 
-Rules:
-1. If user lists multiple items (brain dump), extract ALL tasks and reminders into their respective arrays.
-2. For times, ALWAYS format as 24-hour HH:MM (e.g. 8am -> "08:00", 5:30pm -> "17:30", 8:00 -> "08:00").
-3. For dates, calculate exact future YYYY-MM-DD based on today's date ({today_date}).
-4. If user says "completed task 1", "done with DSA", "finished all", set "complete_tasks" appropriately.
-5. If user expresses feeling lazy, overwhelmed, or stuck, set intent to "procrastination_advice" and provide a sharp, tactical 2-minute actionable nudge in "mentor_response".
-6. Return RAW JSON ONLY. No markdown wrapping, no ```json blocks.
+CRITICAL RULES:
+1. NEVER invent, make up, or hallucinate tasks/reminders/goals. ONLY populate 'tasks_to_add' if the user EXPLICITLY listed or asked to add those exact tasks.
+2. If user is greeting, asking questions, testing commands, or chatting, intent MUST BE 'general_chat' and data arrays MUST BE EMPTY.
+3. If user lists multiple items in a brain-dump (e.g. at night), extract ALL tasks and reminders into their respective arrays and set intent to 'add_tasks'.
+4. For times, ALWAYS format as 24-hour HH:MM (e.g. 8am -> "08:00", 5:30pm -> "17:30", 8:00 -> "08:00").
+5. For dates, calculate exact future YYYY-MM-DD based on today's date ({today_date}).
+6. If user says "completed task 1", "done with DSA", "finished all", set intent to "complete_tasks".
+7. If user expresses feeling lazy, overwhelmed, or stuck, set intent to "procrastination_advice" and provide a sharp, tactical 2-minute actionable nudge in "mentor_response".
+8. Return RAW JSON ONLY. No markdown wrapping, no ```json blocks.
 """
 
 
@@ -85,22 +87,26 @@ def process_natural_message(chat_id, user_data, text):
     today_date = now_ist.strftime("%Y-%m-%d")
     current_time = now_ist.strftime("%H:%M")
     
-    # 1. Fallback quick manual patterns if Groq is offline or text is trivial
     clean_text = text.strip()
+    clean_lower = clean_text.lower()
     
-    # Check if direct command pattern
-    if clean_text == "/start":
+    # 1. Direct command intercepts
+    if clean_lower in ["/start"]:
         return _get_welcome_text(), False
-    elif clean_text in ["/tasks", "/task", "tasks", "my tasks"]:
+    elif clean_lower in ["/tasks", "/task", "tasks", "my tasks"]:
         return stu.format_tasks_list(user_data), False
-    elif clean_text in ["/goals", "/goal", "goals", "my goals"]:
+    elif clean_lower in ["/goals", "/goal", "goals", "my goals"]:
         return stu.format_goals_list(user_data), False
-    elif clean_text in ["/reminders", "/remind", "reminders", "schedule"]:
+    elif clean_lower in ["/reminders", "/remind", "reminders", "schedule"]:
         return stu.format_reminders_list(user_data), False
-    elif clean_text in ["/gameplan", "/today", "gameplan", "today"]:
+    elif clean_lower in ["/gameplan", "/today", "/now", "gameplan", "today", "now"]:
         return stu.format_morning_gameplan(user_data), False
-    elif clean_text in ["/review", "review"]:
+    elif clean_lower in ["/review", "review"]:
         return stu.format_evening_review(user_data), False
+    elif clean_lower in ["/quiz", "quiz"]:
+        return "🧠 <b>Quiz feature removed!</b>\n\nI am now your dedicated <b>AI Discipline & Accountability Mentor</b>. Text me your goals, tasks, or reminders to get started!", False
+    elif clean_lower in ["/topics", "/news", "topics", "news"]:
+        return "📰 <b>News feed removed!</b>\n\nI am now focused 100% on your personal <b>Goals, Daily Tasks, and Reminders</b>.", False
 
     if not client:
         return "⚠️ <i>AI Mentor is offline (GROQ_API_KEY missing). Please check your Render configuration.</i>", False
@@ -130,7 +136,7 @@ def process_natural_message(chat_id, user_data, text):
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": text}
                 ],
-                temperature=0.2,
+                temperature=0.1,
                 max_tokens=600
             )
             raw = response.choices[0].message.content.strip()
@@ -146,19 +152,17 @@ def process_natural_message(chat_id, user_data, text):
             continue
 
     if not parsed_json:
-        # Graceful fallback: Treat as a new task addition
-        task = stu.add_task(user_data, clean_text)
-        return f"📋 <b>Task Added:</b> <i>{task['text']}</i>\n\nLocked in for today!", True
+        return "💬 <i>I'm listening. Text me a task, goal, reminder, or ask for guidance!</i>", False
 
-    # 3. Execute actions from parsed intent
+    # 3. Strict Intent Verification & Action Execution
     intent = parsed_json.get("intent", "general_chat")
     data = parsed_json.get("data", {})
-    mentor_response = parsed_json.get("mentor_response", "Got it! Executed.")
+    mentor_response = parsed_json.get("mentor_response", "Got it!")
     has_changes = False
     
-    # --- ADD TASKS ---
+    # --- ADD TASKS (ONLY IF INTENT IS ADD_TASKS) ---
     tasks_to_add = data.get("tasks_to_add", [])
-    if tasks_to_add:
+    if intent == "add_tasks" and tasks_to_add:
         added_names = []
         for t_text in tasks_to_add:
             t = stu.add_task(user_data, t_text)
@@ -170,9 +174,9 @@ def process_natural_message(chat_id, user_data, text):
             tasks_formatted = "\n".join([f"• <i>{name}</i>" for name in added_names])
             mentor_response = f"📋 <b>{len(added_names)} Tasks Added:</b>\n{tasks_formatted}\n\n{mentor_response}"
 
-    # --- COMPLETE TASKS ---
+    # --- COMPLETE TASKS (ONLY IF INTENT IS COMPLETE_TASKS) ---
     tasks_to_complete = data.get("tasks_to_complete", [])
-    if tasks_to_complete:
+    if intent == "complete_tasks" and tasks_to_complete:
         if "all" in [str(x).lower() for x in tasks_to_complete]:
             count = stu.complete_all_pending_tasks(user_data)
             has_changes = True
@@ -187,9 +191,9 @@ def process_natural_message(chat_id, user_data, text):
                 has_changes = True
                 mentor_response = f"✅ <b>Task Completed:</b> <i>{', '.join(completed_names)}</i>\n\nSolid execution. Keep pushing!"
 
-    # --- DELETE TASK ---
+    # --- DELETE TASK (ONLY IF INTENT IS DELETE_TASK) ---
     task_to_del = data.get("task_to_delete")
-    if task_to_del:
+    if intent == "delete_task" and task_to_del:
         for t in list(user_data.get("tasks", [])):
             if str(t["id"]) == str(task_to_del) or str(task_to_del).lower() in t["text"].lower():
                 stu.delete_task(user_data, t["id"])
@@ -197,9 +201,9 @@ def process_natural_message(chat_id, user_data, text):
                 mentor_response = f"🗑 <b>Task Deleted:</b> <i>{t['text']}</i>"
                 break
 
-    # --- ADD REMINDERS ---
+    # --- ADD REMINDERS (ONLY IF INTENT IS ADD_REMINDER) ---
     reminders_to_add = data.get("reminders_to_add", [])
-    if reminders_to_add:
+    if (intent in ["add_reminder", "add_tasks"]) and reminders_to_add:
         added_rems = []
         for rem_item in reminders_to_add:
             time_val = rem_item.get("time")
@@ -212,9 +216,9 @@ def process_natural_message(chat_id, user_data, text):
             rems_formatted = "\n".join(added_rems)
             mentor_response = f"⏰ <b>Reminder Scheduled:</b>\n{rems_formatted}\n\nI will ping you right on time!"
 
-    # --- DELETE REMINDER ---
+    # --- DELETE REMINDER (ONLY IF INTENT IS DELETE_REMINDER) ---
     rem_to_del = data.get("reminder_to_delete")
-    if rem_to_del:
+    if intent == "delete_reminder" and rem_to_del:
         for r in list(user_data.get("reminders", [])):
             if str(r["id"]) == str(rem_to_del) or str(rem_to_del).lower() in r["label"].lower():
                 stu.delete_reminder(user_data, r["id"])
@@ -222,18 +226,18 @@ def process_natural_message(chat_id, user_data, text):
                 mentor_response = f"🗑 <b>Reminder Removed:</b> <i>{r['label']} ({r['time']})</i>"
                 break
 
-    # --- ADD GOAL ---
+    # --- ADD GOAL (ONLY IF INTENT IS ADD_GOAL) ---
     goal_name = data.get("goal_name")
     goal_date = data.get("goal_date")
-    if goal_name and goal_date:
+    if intent == "add_goal" and goal_name and goal_date:
         ok, msg = stu.add_goal(user_data, goal_name, goal_date)
         if ok:
             has_changes = True
             mentor_response = msg
 
-    # --- DELETE GOAL ---
+    # --- DELETE GOAL (ONLY IF INTENT IS DELETE_GOAL) ---
     goal_to_del = data.get("goal_to_delete")
-    if goal_to_del:
+    if intent == "delete_goal" and goal_to_del:
         for g in list(user_data.get("goals", [])):
             if str(g["id"]) == str(goal_to_del) or str(goal_to_del).lower() in g["name"].lower():
                 stu.delete_goal(user_data, g["id"])
@@ -243,14 +247,14 @@ def process_natural_message(chat_id, user_data, text):
 
     # --- SET WEEKLY PRIORITY ---
     wp_val = data.get("weekly_priority")
-    if wp_val:
+    if intent == "set_weekly_priority" and wp_val:
         stu.set_weekly_priority(user_data, wp_val)
         has_changes = True
         mentor_response = f"📌 <b>Week Priority Locked:</b> <i>{wp_val}</i>\n\nEvery day's actions should align with this milestone."
 
     # --- START DEEP WORK ---
     dw_mins = data.get("deep_work_minutes")
-    if dw_mins:
+    if intent == "start_deep_work" and dw_mins:
         dw_label = data.get("deep_work_label", "Deep Work Block")
         stu.start_deep_work(user_data, int(dw_mins), dw_label)
         has_changes = True
