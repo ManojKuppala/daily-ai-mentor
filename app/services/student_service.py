@@ -1,4 +1,4 @@
-"""Student companion features: goals, tasks, streaks."""
+"""AI Mentor Service: Goals, Tasks, Reminders, Deep Work, and Accountability."""
 
 from datetime import datetime, timezone, timedelta
 import random
@@ -11,39 +11,47 @@ def _now_ist():
 def _today_str():
     return _now_ist().strftime("%Y-%m-%d")
 
+
 # ===================================================================
-#  GOAL MANAGEMENT
+#  USER DATA SCHEMA INITIALIZATION
 # ===================================================================
 
 def ensure_student_fields(user_data):
-    """Ensure a user record has all student companion fields."""
+    """Ensure a user record has all mentor & accountability fields."""
     defaults = {
         "goals": [],
         "tasks": [],
         "reminders": [],
-        "streaks": {
-            "briefing": 0, "task": 0,
-            "last_briefing": None, "last_task": None
-        },
         "weekly_priority": None,
-        "study_buddy": None,
+        "deep_work": None,
         "task_id_counter": 0,
         "goal_id_counter": 0,
         "reminder_id_counter": 0,
+        "time": user_data.get("time", "08:30"),
+        "status": user_data.get("status", "active")
     }
     for key, val in defaults.items():
         if key not in user_data:
             user_data[key] = val
+            
+    # Clean out any legacy keys
+    for legacy_key in ["topics", "quiz", "streaks", "study_buddy"]:
+        user_data.pop(legacy_key, None)
+        
     return user_data
 
 
+# ===================================================================
+#  GOALS MANAGEMENT
+# ===================================================================
+
 def add_goal(user_data, name, target_date_str):
-    """Add a goal with a target date. Returns (success, message)."""
+    """Add a long-term goal with a target deadline."""
     user_data = ensure_student_fields(user_data)
     try:
         target = datetime.strptime(target_date_str, "%Y-%m-%d").date()
     except ValueError:
-        return False, "Invalid date format. Use YYYY-MM-DD (e.g., 2026-06-15)"
+        return False, "Invalid date format. Please use YYYY-MM-DD (e.g., 2026-10-30)."
     
     if target <= _now_ist().date():
         return False, "Target date must be in the future."
@@ -53,15 +61,15 @@ def add_goal(user_data, name, target_date_str):
         "id": user_data["goal_id_counter"],
         "name": name.strip(),
         "target_date": target_date_str,
-        "created_at": _today_str()
+        "created_date": _today_str()
     }
     user_data["goals"].append(goal)
     days_left = (target - _now_ist().date()).days
-    return True, f"✅ Goal set: <b>{name}</b>\n📅 Target: {target_date_str} ({days_left} days away)"
+    return True, f"🎯 Goal locked in: <b>{name}</b> ({days_left} days remaining until {target_date_str})!"
 
 
-def remove_goal(user_data, goal_id):
-    """Remove a goal by ID."""
+def delete_goal(user_data, goal_id):
+    """Delete a goal by ID."""
     user_data = ensure_student_fields(user_data)
     before = len(user_data["goals"])
     user_data["goals"] = [g for g in user_data["goals"] if g["id"] != goal_id]
@@ -69,398 +77,368 @@ def remove_goal(user_data, goal_id):
 
 
 def get_goals(user_data):
-    """Return list of goals sorted by nearest deadline."""
+    """Get active goals with days remaining."""
     user_data = ensure_student_fields(user_data)
     today = _now_ist().date()
-    goals = []
+    active = []
     for g in user_data["goals"]:
-        target = datetime.strptime(g["target_date"], "%Y-%m-%d").date()
-        days_left = (target - today).days
-        goals.append({**g, "days_left": days_left})
-    goals.sort(key=lambda x: x["days_left"])
-    return goals
+        try:
+            target = datetime.strptime(g["target_date"], "%Y-%m-%d").date()
+            days_left = (target - today).days
+            active.append({**g, "days_left": days_left})
+        except ValueError:
+            continue
+    active.sort(key=lambda x: x["days_left"])
+    return active
 
 
 def get_countdown_text(user_data):
-    """Generate countdown header for the daily briefing."""
+    """Generate clean goal countdown string."""
     goals = get_goals(user_data)
     if not goals:
         return ""
-    
-    nearest = goals[0]
-    days = nearest["days_left"]
-    name = nearest["name"]
-    
-    if days < 0:
-        return f"⏰ <b>{name}</b> deadline has passed ({abs(days)} days ago)\n"
-    elif days == 0:
-        return f"🔥 <b>{name}</b> is TODAY! You've got this! 💪\n"
-    elif days <= 7:
-        return f"🔴 <b>{days} days</b> until <b>{name}</b> — Final stretch! Every hour counts.\n"
-    elif days <= 30:
-        return f"🟡 <b>{days} days</b> until <b>{name}</b> — Stay focused, you're close.\n"
-    else:
-        return f"🟢 <b>{days} days</b> until <b>{name}</b> — Steady progress wins.\n"
-
-
-def format_goals_list(user_data):
-    """Format goals for display."""
-    goals = get_goals(user_data)
-    if not goals:
-        return "📋 You haven't set any goals yet.\n\nUse the button below to add your first goal!"
-    
-    lines = ["🎯 <b>Your Goals</b>\n"]
-    for g in goals:
-        days = g["days_left"]
-        if days < 0:
-            badge = "⏰ PASSED"
-        elif days <= 7:
-            badge = f"🔴 {days}d"
-        elif days <= 30:
-            badge = f"🟡 {days}d"
-        else:
-            badge = f"🟢 {days}d"
-        lines.append(f"  {badge}  <b>{g['name']}</b> — {g['target_date']}")
+    lines = ["🎯 <b>Milestone Countdowns:</b>"]
+    for g in goals[:3]:
+        badge = "🔴" if g["days_left"] <= 7 else "🟡" if g["days_left"] <= 30 else "🟢"
+        lines.append(f"{badge} <b>{g['days_left']} days</b> until {g['name']}")
     return "\n".join(lines)
 
 
 # ===================================================================
-#  TASK MANAGEMENT
+#  TASKS MANAGEMENT & PROCRASTINATION ENGINE
 # ===================================================================
 
-def add_task(user_data, text, goal_id=None, recurring=None):
-    """Add a task. Returns (success, message)."""
+def add_task(user_data, text, for_tomorrow=False):
+    """Add an actionable task."""
     user_data = ensure_student_fields(user_data)
+    target_date = (_now_ist().date() + timedelta(days=1)).strftime("%Y-%m-%d") if for_tomorrow else _today_str()
+    
     user_data["task_id_counter"] += 1
     task = {
         "id": user_data["task_id_counter"],
         "text": text.strip(),
-        "goal_id": goal_id,
+        "date": target_date,
+        "created_date": _today_str(),
         "status": "pending",
-        "date": _today_str(),
-        "recurring": recurring,  # None, "daily", or "weekly"
-        "carried_over": False
+        "carried_over": for_tomorrow
     }
     user_data["tasks"].append(task)
-    return True, f"✅ Task added: <b>{text}</b>"
+    return task
 
 
-def complete_task(user_data, task_id):
-    """Mark a task as done."""
+def complete_task(user_data, task_id_or_match):
+    """Mark a task as completed."""
     user_data = ensure_student_fields(user_data)
-    for task in user_data["tasks"]:
-        if task["id"] == task_id and task["status"] == "pending":
-            task["status"] = "done"
-            task["completed_date"] = _today_str()
-            # Update task streak
-            update_streak(user_data, "task")
-            return True
-    return False
+    today = _today_str()
+    
+    for t in user_data["tasks"]:
+        if t["status"] == "pending":
+            # Match by ID or text substring
+            if str(t["id"]) == str(task_id_or_match) or (isinstance(task_id_or_match, str) and task_id_or_match.lower() in t["text"].lower()):
+                t["status"] = "done"
+                t["completed_date"] = today
+                return True, t["text"]
+                
+    return False, None
+
+
+def complete_all_pending_tasks(user_data):
+    """Mark all today's pending tasks as done."""
+    user_data = ensure_student_fields(user_data)
+    today = _today_str()
+    count = 0
+    for t in user_data["tasks"]:
+        if t["status"] == "pending" and (t["date"] == today or t.get("carried_over")):
+            t["status"] = "done"
+            t["completed_date"] = today
+            count += 1
+    return count
 
 
 def delete_task(user_data, task_id):
-    """Delete a task."""
+    """Delete a task by ID."""
     user_data = ensure_student_fields(user_data)
     before = len(user_data["tasks"])
     user_data["tasks"] = [t for t in user_data["tasks"] if t["id"] != task_id]
     return len(user_data["tasks"]) < before
 
 
-def skip_task(user_data, task_id):
-    """Mark a task as skipped (planned rest, doesn't break streak)."""
-    user_data = ensure_student_fields(user_data)
-    for task in user_data["tasks"]:
-        if task["id"] == task_id and task["status"] == "pending":
-            task["status"] = "skipped"
-            return True
-    return False
-
-
-def get_today_tasks(user_data):
-    """Get today's pending and carried-over tasks."""
+def get_pending_tasks(user_data):
+    """Get active pending tasks for today."""
     user_data = ensure_student_fields(user_data)
     today = _today_str()
-    tasks = []
+    return [t for t in user_data["tasks"] if t["status"] == "pending" and (t["date"] <= today or t.get("carried_over"))]
+
+
+def get_stale_tasks(user_data, days_threshold=2):
+    """Detect tasks that have been pending for > 2 days (Procrastination Detection)."""
+    user_data = ensure_student_fields(user_data)
+    today = _now_ist().date()
+    stale = []
     for t in user_data["tasks"]:
-        if t["status"] == "pending" and (t["date"] == today or t.get("carried_over")):
-            tasks.append(t)
-    return tasks
+        if t["status"] == "pending":
+            created = datetime.strptime(t.get("created_date", t["date"]), "%Y-%m-%d").date()
+            days_pending = (today - created).days
+            if days_pending >= days_threshold:
+                stale.append({**t, "days_pending": days_pending})
+    stale.sort(key=lambda x: x["days_pending"], reverse=True)
+    return stale
 
 
 def rollover_tasks(user_data):
-    """Roll over yesterday's incomplete tasks to today."""
+    """Roll over uncompleted tasks from previous days to today."""
     user_data = ensure_student_fields(user_data)
     today = _today_str()
-    rolled = 0
-    for task in user_data["tasks"]:
-        if task["status"] == "pending" and task["date"] < today and not task.get("carried_over"):
-            task["carried_over"] = True
-            task["date"] = today
-            rolled += 1
-    
-    # Handle recurring tasks: create new instances
-    for task in list(user_data["tasks"]):
-        if task["status"] == "done" and task.get("recurring"):
-            if task["recurring"] == "daily" and task.get("completed_date", "") < today:
-                add_task(user_data, task["text"], task.get("goal_id"), task["recurring"])
-            # Weekly: only on same weekday
-            elif task["recurring"] == "weekly":
-                completed = datetime.strptime(task.get("completed_date", today), "%Y-%m-%d")
-                if (_now_ist().date() - completed.date()).days >= 7:
-                    add_task(user_data, task["text"], task.get("goal_id"), task["recurring"])
-    
-    return rolled
-
-
-def format_tasks_list(user_data):
-    """Format today's tasks for display."""
-    tasks = get_today_tasks(user_data)
-    if not tasks:
-        return "📋 No tasks for today!\n\nUse /addtask to add something to work on."
-    
-    lines = ["📋 <b>Today's Tasks</b>\n"]
-    for t in tasks:
-        marker = "🔄 " if t.get("carried_over") else "⬜ "
-        goal_tag = ""
-        if t.get("goal_id"):
-            goals = [g for g in user_data.get("goals", []) if g["id"] == t["goal_id"]]
-            if goals:
-                goal_tag = f" [📎 {goals[0]['name']}]"
-        lines.append(f"  {marker}<b>{t['text']}</b>{goal_tag}")
-    
-    done_today = sum(1 for t in user_data.get("tasks", []) 
-                     if t["status"] == "done" and t.get("completed_date") == _today_str())
-    if done_today > 0:
-        lines.append(f"\n✅ {done_today} task{'s' if done_today != 1 else ''} completed today")
-    
-    return "\n".join(lines)
+    for t in user_data["tasks"]:
+        if t["status"] == "pending" and t["date"] < today:
+            t["date"] = today
+            t["carried_over"] = True
 
 
 # ===================================================================
-#  REMINDER MANAGEMENT
+#  REMINDERS & DEEP WORK MANAGEMENT
 # ===================================================================
 
-def add_reminder(user_data, label, time_str):
-    """Add a daily reminder. Returns (success, message)."""
+def add_reminder(user_data, time_str, label, daily=True):
+    """Add a scheduled reminder."""
     user_data = ensure_student_fields(user_data)
     user_data["reminder_id_counter"] += 1
-    reminder = {
+    rem = {
         "id": user_data["reminder_id_counter"],
+        "time": time_str,
         "label": label.strip(),
-        "time": time_str
+        "daily": daily,
+        "created_date": _today_str()
     }
-    user_data["reminders"].append(reminder)
-    return True, f"✅ Reminder set: <b>{label}</b> at <b>{time_str} IST</b>"
+    user_data["reminders"].append(rem)
+    user_data["reminders"].sort(key=lambda x: x["time"])
+    return rem
 
 
-def remove_reminder(user_data, reminder_id):
-    """Remove a reminder."""
+def delete_reminder(user_data, rem_id):
+    """Delete a reminder by ID."""
     user_data = ensure_student_fields(user_data)
     before = len(user_data["reminders"])
-    user_data["reminders"] = [r for r in user_data["reminders"] if r["id"] != reminder_id]
+    user_data["reminders"] = [r for r in user_data["reminders"] if r["id"] != rem_id]
     return len(user_data["reminders"]) < before
 
 
-def get_reminders(user_data):
-    """Return reminders sorted by time."""
+def start_deep_work(user_data, duration_minutes, label="Focused Deep Work"):
+    """Start a deep work timer."""
     user_data = ensure_student_fields(user_data)
-    return sorted(user_data.get("reminders", []), key=lambda r: r["time"])
-
-
-def format_reminders_list(user_data):
-    """Format reminders for display."""
-    reminders = get_reminders(user_data)
-    if not reminders:
-        return "⏰ No reminders set.\n\nUse /remind to add study reminders!"
-    
-    lines = ["⏰ <b>Your Daily Reminders</b>\n"]
-    for r in reminders:
-        lines.append(f"  🔔 <b>{r['time']}</b> — {r['label']}")
-    return "\n".join(lines)
-
-
-# ===================================================================
-#  STREAK MANAGEMENT
-# ===================================================================
-
-def update_streak(user_data, streak_type):
-    """Update a streak (briefing or task). Call when the action happens."""
-    user_data = ensure_student_fields(user_data)
-    streaks = user_data["streaks"]
-    today = _today_str()
-    last_key = f"last_{streak_type}"
-    
-    last_date = streaks.get(last_key)
-    if last_date == today:
-        return  # Already counted today
-    
-    if last_date:
-        yesterday = (_now_ist().date() - timedelta(days=1)).strftime("%Y-%m-%d")
-        if last_date == yesterday:
-            streaks[streak_type] += 1
-        else:
-            streaks[streak_type] = 1  # Reset — streak broken
-    else:
-        streaks[streak_type] = 1  # First day
-    
-    streaks[last_key] = today
-    
-    # Check for milestones
-    return check_milestone(streaks[streak_type], streak_type)
-
-
-def check_milestone(count, streak_type):
-    """Return a milestone message if the count hits a notable number."""
-    milestones = {
-        3: "Nice start",
-        7: "One full week",
-        14: "Two weeks strong",
-        21: "Habit forming",
-        30: "Incredible consistency",
-        50: "Half-century",
-        100: "Legendary"
+    end_time = _now_ist() + timedelta(minutes=duration_minutes)
+    user_data["deep_work"] = {
+        "label": label,
+        "duration": duration_minutes,
+        "end_time_str": end_time.strftime("%H:%M"),
+        "end_timestamp": end_time.isoformat()
     }
-    type_labels = {"briefing": "📰 Briefing", "task": "✅ Task"}
-    label = type_labels.get(streak_type, streak_type)
-    
-    if count in milestones:
-        return f"🏆 <b>{label} streak: {count} days!</b> — {milestones[count]}!"
+    return user_data["deep_work"]
+
+
+def check_deep_work_completion(user_data):
+    """Check if deep work block has ended."""
+    dw = user_data.get("deep_work")
+    if not dw:
+        return None
+    try:
+        end_time = datetime.fromisoformat(dw["end_timestamp"])
+        if _now_ist() >= end_time:
+            label = dw["label"]
+            duration = dw["duration"]
+            user_data["deep_work"] = None
+            return f"⏰ <b>Deep Work Complete!</b>\n\nGreat execution! You just crushed <b>{duration} minutes</b> on <i>{label}</i>. Take a 10-min screen break."
+    except Exception:
+        user_data["deep_work"] = None
     return None
 
 
-def format_streaks(user_data):
-    """Format streak display."""
+def set_weekly_priority(user_data, priority_text):
+    """Set top weekly priority."""
     user_data = ensure_student_fields(user_data)
-    s = user_data["streaks"]
-    lines = [
-        "🔥 <b>Your Streaks</b>\n",
-        f"  📰 Briefing: <b>{s['briefing']} day{'s' if s['briefing'] != 1 else ''}</b>",
-        f"  ✅ Tasks: <b>{s['task']} day{'s' if s['task'] != 1 else ''}</b>",
-    ]
-    return "\n".join(lines)
+    user_data["weekly_priority"] = priority_text.strip()
+    return user_data["weekly_priority"]
 
 
 # ===================================================================
-#  PROGRESS & WEEKLY SUMMARY
+#  FORMATTERS: MORNING, EVENING, NIGHT & STATUS
 # ===================================================================
 
-def get_daily_completion_rate(user_data):
-    """Calculate today's task completion rate."""
-    user_data = ensure_student_fields(user_data)
-    today = _today_str()
-    today_tasks = [t for t in user_data["tasks"] if t["date"] == today or t.get("carried_over")]
-    total = len([t for t in today_tasks if t["status"] in ("done", "pending")])
-    done = len([t for t in today_tasks if t["status"] == "done"])
-    if total == 0:
-        return 0, 0, 0
-    return done, total, round(done / total * 100)
+DISCIPLINE_QUOTES = [
+    "“We don't rise to the level of our expectations, we fall to the level of our training.”",
+    "“Discipline equals freedom. Win the morning, win the day.”",
+    "“Small daily improvements over time lead to stunning results.”",
+    "“Action cures anxiety. Start with the hardest task first.”",
+    "“You don't need motivation. You need a standard you refuse to lower.”",
+    "“Focus on the process, and the outcomes will take care of themselves.”",
+    "“Procrastination is the arrogant assumption that God owes you another chance.”"
+]
 
-
-def format_progress(user_data):
-    """Format progress display."""
+def format_morning_gameplan(user_data):
+    """Generate the 08:30 AM Morning Focus Gameplan."""
     user_data = ensure_student_fields(user_data)
-    done, total, rate = get_daily_completion_rate(user_data)
-    s = user_data["streaks"]
+    rollover_tasks(user_data)
     
+    today_formatted = _now_ist().strftime("%A, %d %B %Y")
     lines = [
-        "📊 <b>Your Progress</b>\n",
-        f"<b>Today's Tasks:</b> {done}/{total} completed ({rate}%)",
-        "",
-        f"🔥 <b>Streaks</b>",
-        f"  📰 Briefing: {s['briefing']} days",
-        f"  ✅ Tasks: {s['task']} days",
+        f"🌅 <b>Morning Gameplan Briefing</b>",
+        f"🗓️ <i>{today_formatted}</i>",
+        "━" * 26,
+        ""
     ]
     
-    goals = get_goals(user_data)
-    if goals:
+    # 1. Goals & Countdowns
+    countdown = get_countdown_text(user_data)
+    if countdown:
+        lines.append(countdown)
         lines.append("")
-        lines.append("🎯 <b>Goals</b>")
-        for g in goals[:3]:
-            lines.append(f"  {'🔴' if g['days_left'] <= 7 else '🟡' if g['days_left'] <= 30 else '🟢'} {g['name']}: {g['days_left']}d left")
-    
-    return "\n".join(lines)
-
-
-def generate_weekly_summary(user_data):
-    """Generate the Sunday evening weekly reflection message."""
-    user_data = ensure_student_fields(user_data)
-    today = _today_str()
-    s = user_data["streaks"]
-    
-    # Count this week's completed tasks
-    week_start = (_now_ist().date() - timedelta(days=7)).strftime("%Y-%m-%d")
-    week_tasks = [t for t in user_data["tasks"] 
-                  if t.get("completed_date", "") >= week_start and t["status"] == "done"]
-    
-    lines = [
-        "📬 <b>Weekly Reflection</b>",
-        f"━{'━' * 26}",
-        "",
-        f"✅ <b>Tasks completed this week:</b> {len(week_tasks)}",
-        f"🔥 <b>Current streaks:</b> Briefing {s['briefing']}d | Tasks {s['task']}d",
-    ]
-    
-    goals = get_goals(user_data)
-    if goals:
-        lines.append("")
-        for g in goals[:3]:
-            lines.append(f"🎯 {g['name']}: <b>{g['days_left']} days</b> remaining")
-    
+        
+    # 2. Week Priority
     wp = user_data.get("weekly_priority")
     if wp:
-        lines.append(f"\n📌 Weekly priority was: <b>{wp}</b>")
-    
-
-    
-    # Motivational closer
+        lines.append(f"📌 <b>Week Priority:</b> {wp}\n")
+        
+    # 3. Procrastination Alerts (Tasks pending > 2 days)
+    stale = get_stale_tasks(user_data, days_threshold=2)
+    if stale:
+        lines.append("⚠️ <b>Reality Check (Pending > 2 Days):</b>")
+        for st in stale[:2]:
+            lines.append(f"• <i>{st['text']}</i> (stalled for {st['days_pending']} days — knock this out first!)")
+        lines.append("")
+        
+    # 4. Today's Planned Tasks
+    pending = get_pending_tasks(user_data)
+    if pending:
+        lines.append("📋 <b>Today's Execution List:</b>")
+        for i, t in enumerate(pending, 1):
+            lines.append(f"{i}. ⬜ {t['text']}")
+    else:
+        lines.append("📋 <b>Tasks:</b> No tasks scheduled yet today. Type a task or plan tonight!")
+        
     lines.append("")
-    lines.append(generate_motivational_line(user_data))
+    
+    # 5. Scheduled Reminders
+    rems = user_data.get("reminders", [])
+    if rems:
+        lines.append("⏰ <b>Today's Schedule:</b>")
+        for r in rems:
+            lines.append(f"• <code>{r['time']}</code> — {r['label']}")
+        lines.append("")
+        
+    # 6. Mindset Quote
+    lines.append("💡 <i>" + random.choice(DISCIPLINE_QUOTES) + "</i>")
+    lines.append("━" * 26)
+    lines.append("💬 <i>Reply anytime to add tasks, complete items, or set reminders.</i>")
     
     return "\n".join(lines)
 
 
-# ===================================================================
-#  MOTIVATION
-# ===================================================================
-
-def generate_motivational_line(user_data):
-    """Generate a data-driven motivational line, not a generic quote."""
+def format_evening_review(user_data):
+    """Generate the 09:00 PM Accountability Check."""
     user_data = ensure_student_fields(user_data)
-    s = user_data["streaks"]
+    pending = get_pending_tasks(user_data)
+    
+    lines = [
+        "🌙 <b>Evening Accountability Check (9:00 PM)</b>",
+        "━" * 26,
+        ""
+    ]
+    
+    if not pending:
+        lines.append("🎉 <b>Incredible work!</b> All of today's tasks are completed!")
+        lines.append("Take time to recharge, and prepare to lock in tomorrow's tasks at 10:30 PM.")
+    else:
+        lines.append("Let's review today's pending tasks:")
+        for i, t in enumerate(pending, 1):
+            lines.append(f"{i}. ⏳ {t['text']}")
+        lines.append("\n💬 <b>Reply with what you finished</b> (e.g., <i>'done with 1'</i> or <i>'completed all'</i>) so we can close out today cleanly!")
+        
+    return "\n".join(lines)
+
+
+def format_night_planning(user_data):
+    """Generate the 10:30 PM Night Planning Prompt."""
+    return """🎯 <b>Night Planning for Tomorrow (10:30 PM)</b>
+━━━━━━━━━━━━━━━━━━━━
+
+Win tomorrow before it even starts. What are your <b>top 2 to 4 priority tasks</b> for tomorrow?
+
+💬 <b>Just reply with your brain dump</b>, for example:
+• <i>1. Solve 2 LeetCode trees problems</i>
+• <i>2. Build Express authentication API</i>
+• <i>3. Remind me at 5pm to review resume</i>
+
+I'll automatically organize them into your morning gameplan!"""
+
+
+def format_weekly_summary(user_data):
+    """Generate the Sunday 08:00 PM Strategic Review."""
+    user_data = ensure_student_fields(user_data)
+    today = _now_ist().date()
+    week_start = (today - timedelta(days=7)).strftime("%Y-%m-%d")
+    
+    done_tasks = [t for t in user_data["tasks"] if t.get("completed_date", "") >= week_start and t["status"] == "done"]
+    pending_tasks = get_pending_tasks(user_data)
+    
+    lines = [
+        "📊 <b>Sunday Weekly Executive Summary</b>",
+        "━" * 26,
+        f"✅ <b>Tasks Completed This Week:</b> {len(done_tasks)}",
+        f"⏳ <b>Current Pending Tasks:</b> {len(pending_tasks)}",
+        ""
+    ]
+    
     goals = get_goals(user_data)
-    done, total, rate = get_daily_completion_rate(user_data)
-    
-    lines = []
-    
-    if s["briefing"] >= 7:
-        lines.append(f"💡 {s['briefing']} days of showing up. That's not luck — that's discipline.")
-    if s["task"] >= 3:
-        lines.append(f"💡 {s['task']}-day task streak. Consistency is your superpower.")
-    if rate >= 80 and total > 0:
-        lines.append(f"💡 {rate}% completion today. You're operating at a high level.")
-    if goals and goals[0]["days_left"] <= 7:
-        lines.append(f"💡 {goals[0]['days_left']} days to {goals[0]['name']}. You've prepared for this. Trust your work.")
-    if goals and goals[0]["days_left"] <= 30:
-        lines.append(f"💡 Every session between now and {goals[0]['name']} compounds. Keep stacking.")
-    
-    if not lines:
-        defaults = [
-            "💡 Small steps today, big results tomorrow. Keep going.",
-            "💡 You chose to show up today. That already puts you ahead.",
-            "💡 The work you do today is a gift to your future self.",
-            "💡 Progress isn't always visible, but it's always happening.",
-        ]
-        lines = [random.choice(defaults)]
-    
-    return random.choice(lines)
+    if goals:
+        lines.append("🎯 <b>Active Goal Velocity:</b>")
+        for g in goals[:3]:
+            lines.append(f"• {g['name']}: <b>{g['days_left']} days left</b>")
+        lines.append("")
+        
+    wp = user_data.get("weekly_priority")
+    if wp:
+        lines.append(f"📌 <b>Last week's priority:</b> {wp}")
+        
+    lines.append("\n💬 <i>Take 2 minutes to reply with your #1 priority focus for the upcoming week!</i>")
+    return "\n".join(lines)
 
 
-# ===================================================================
-#  WEEKLY PRIORITY
-# ===================================================================
-
-def set_weekly_priority(user_data, text):
-    """Set the weekly top priority."""
+def format_tasks_list(user_data):
+    """Format full task list view."""
     user_data = ensure_student_fields(user_data)
-    user_data["weekly_priority"] = text.strip()
-    return True
+    pending = get_pending_tasks(user_data)
+    if not pending:
+        return "📋 <b>No pending tasks!</b>\n\nText me to add one (e.g., <i>'add task: revise system design'</i>)."
+        
+    lines = ["📋 <b>Your Active Tasks:</b>\n"]
+    for i, t in enumerate(pending, 1):
+        stale_indicator = " ⚠️ (stalled)" if datetime.strptime(t.get("created_date", t["date"]), "%Y-%m-%d").date() <= (_now_ist().date() - timedelta(days=2)) else ""
+        lines.append(f"{i}. ⬜ <b>{t['text']}</b>{stale_indicator}")
+        
+    lines.append("\n💬 <i>To mark done, just text: 'done 1' or 'completed [task name]'</i>")
+    return "\n".join(lines)
+
+
+def format_goals_list(user_data):
+    """Format full goals list view."""
+    goals = get_goals(user_data)
+    if not goals:
+        return "🎯 <b>No goals set yet!</b>\n\nText me to add one (e.g., <i>'set goal: Crack MERN job by 2026-10-30'</i>)."
+        
+    lines = ["🎯 <b>Your Milestone Goals:</b>\n"]
+    for i, g in enumerate(goals, 1):
+        badge = "🔴" if g["days_left"] <= 7 else "🟡" if g["days_left"] <= 30 else "🟢"
+        lines.append(f"{i}. {badge} <b>{g['name']}</b>\n   ⏳ <b>{g['days_left']} days remaining</b> (Target: {g['target_date']})\n")
+    return "\n".join(lines)
+
+
+def format_reminders_list(user_data):
+    """Format reminders list view."""
+    rems = user_data.get("reminders", [])
+    if not rems:
+        return "⏰ <b>No reminders set!</b>\n\nText me to add one (e.g., <i>'remind me daily at 8:00 for DSA'</i>)."
+        
+    lines = ["⏰ <b>Your Scheduled Reminders:</b>\n"]
+    for i, r in enumerate(rems, 1):
+        lines.append(f"{i}. 🔔 <code>{r['time']}</code> — <b>{r['label']}</b> (Daily)")
+    return "\n".join(lines)

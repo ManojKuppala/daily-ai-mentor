@@ -86,29 +86,8 @@ def update_user_status(chat_id, status):
 
 
 def normalize_users(users):
-    """Ensure all user records have required fields with defaults."""
+    """Ensure all user records have required mentor fields with defaults."""
+    from app.services import student_service as stu
     for chat_id, data in users.items():
-        if "status" not in data:
-            data["status"] = "active"
-        if "joined_at" not in data:
-            data["joined_at"] = "Unknown"
-        if "topics" not in data:
-            data["topics"] = []
-        if "time" not in data:
-            data["time"] = "08:00"
-        # Deduplicate topics: keep emoji-prefixed version, remove plain duplicates
-        data["topics"] = _dedup_user_topics(data["topics"])
+        stu.ensure_student_fields(data)
     return users
-
-
-def _dedup_user_topics(topics):
-    """Remove duplicate topics, keeping the emoji-prefixed version."""
-    seen = {}
-    for topic in topics:
-        canonical = topic
-        for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍", "🏏"]:
-            canonical = canonical.replace(emoji, "").strip()
-        # Prefer the longer (emoji-prefixed) version
-        if canonical not in seen or len(topic) > len(seen[canonical]):
-            seen[canonical] = topic
-    return list(seen.values())

@@ -9,13 +9,3 @@ class Config:
     
     ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "password123")
-
-    AVAILABLE_TOPICS = [
-        "💻 Tech & Hardware",
-        "🚀 Startups & Business",
-        "📈 Stock Market & Finance",
-        "🔬 Science & Space",
-        "🧠 Educational Facts & History",
-        "🌍 Global News",
-        "🏏 Cricket News"
-    ]

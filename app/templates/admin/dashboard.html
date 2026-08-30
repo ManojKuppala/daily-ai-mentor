@@ -13,7 +13,7 @@
 <aside class="sidebar">
     <div class="sidebar-brand">
         <h2>🤖 Daily AI Mentor</h2>
-        <span>admin dashboard v2.0</span>
+        <span>Discipline & Accountability v3.0</span>
     </div>
     <nav class="sidebar-nav">
         <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
@@ -22,11 +22,7 @@
         </div>
         <div class="nav-item" data-tab="users" onclick="switchTab('users')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-            Users
-        </div>
-        <div class="nav-item" data-tab="topics" onclick="switchTab('topics')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-            Topics
+            Mentored Users
         </div>
         <div class="nav-item" data-tab="logs" onclick="switchTab('logs')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -48,47 +44,36 @@
 <!-- MAIN -->
 <main class="main-content">
     <div class="page-header">
-        <h1 id="page-title">Overview</h1>
-        <p id="page-subtitle">Real-time system metrics and analytics</p>
+        <h1 id="page-title">Mentor Overview</h1>
+        <p id="page-subtitle">Real-time discipline metrics, active goals, and scheduled tasks</p>
     </div>
 
     <!-- ===== OVERVIEW ===== -->
     <div id="section-overview" class="section active">
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Subscribers</div>
+                <div class="stat-label">Total Mentored Users</div>
                 <div class="stat-value accent">{{ total_users }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Messages Sent Today</div>
-                <div class="stat-value violet">{{ sent_today }}</div>
+                <div class="stat-label">Active Milestone Goals</div>
+                <div class="stat-value violet">{{ total_goals }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Avg Topics / User</div>
-                <div class="stat-value amber">{{ avg_topics }}</div>
+                <div class="stat-label">Pending Execution Tasks</div>
+                <div class="stat-value amber">{{ total_tasks }}</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">System Status</div>
-                <div class="stat-live">
-                    <span class="live-dot"></span> All Systems Operational
-                </div>
+                <div class="stat-label">Briefings Sent Today</div>
+                <div class="stat-value accent">{{ sent_today }}</div>
             </div>
         </div>
 
         <div class="chart-card">
-            <h3>📊 Topic Popularity</h3>
-            {% for t in topics %}
-            <div class="bar-row">
-                <div class="bar-label">{{ t.display }}</div>
-                <div class="bar-track">
-                    <div class="bar-fill" data-width="{{ (t.count / total_users * 100) if total_users > 0 else 0 }}" style="width: 0%;"></div>
-                </div>
-                <div class="bar-count">{{ t.count }}</div>
-            </div>
-            {% endfor %}
-            {% if not topics %}
-            <p style="color: var(--text-faint); font-style: italic;">No topic data available yet.</p>
-            {% endif %}
+            <h3>⚡ System Operational Status</h3>
+            <p style="color: var(--text-faint); margin-top: 0.5rem;">
+                Autonomous NLP Parser: <b>Online</b> | 2-Day Procrastination Detector: <b>Active</b> | Groq AI Inference: <b>Connected</b>
+            </p>
         </div>
     </div>
 
@@ -96,7 +81,7 @@
     <div id="section-users" class="section">
         <div class="table-card">
             <div class="table-toolbar">
-                <h3>All Users ({{ total_users }})</h3>
+                <h3>All Mentored Users ({{ total_users }})</h3>
                 <div class="search-box">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     <input type="text" id="user-search" placeholder="Search by Chat ID..." oninput="searchUsers()">
@@ -106,9 +91,11 @@
                 <thead>
                     <tr>
                         <th>Chat ID</th>
-                        <th>Topics</th>
+                        <th>Goals</th>
+                        <th>Tasks</th>
+                        <th>Reminders</th>
                         <th>Status</th>
-                        <th>Delivery Time</th>
+                        <th>Morning Briefing</th>
                         <th>Joined</th>
                         <th>Actions</th>
                     </tr>
@@ -117,14 +104,9 @@
                     {% for user in user_list %}
                     <tr id="row-{{ user.chat_id }}">
                         <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">{{ user.chat_id }}</td>
-                        <td>
-                            {% for topic in user.topics %}
-                            <span class="chip">{{ topic }}</span>
-                            {% endfor %}
-                            {% if not user.topics %}
-                            <span style="color: var(--text-faint); font-style: italic;">None</span>
-                            {% endif %}
-                        </td>
+                        <td><span class="chip">🎯 {{ user.goals_count }} Goals</span></td>
+                        <td><span class="chip">📋 {{ user.tasks_count }} Tasks</span></td>
+                        <td><span class="chip">⏰ {{ user.reminders_count }} Reminders</span></td>
                         <td>
                             <span id="status-{{ user.chat_id }}" class="pill pill-{{ user.status }}">{{ user.status }}</span>
                         </td>
@@ -132,7 +114,7 @@
                         <td>{{ user.joined_at }}</td>
                         <td>
                             <div class="row-actions">
-                                <button class="btn-icon accent" title="Resend" onclick="resendUser('{{ user.chat_id }}')">📨</button>
+                                <button class="btn-icon accent" title="Send Morning Gameplan" onclick="resendUser('{{ user.chat_id }}')">📨</button>
                                 {% if user.status == 'active' %}
                                 <button id="toggle-{{ user.chat_id }}" class="btn-icon amber" title="Pause" onclick="pauseUser('{{ user.chat_id }}')">⏸</button>
                                 {% else %}
@@ -144,48 +126,8 @@
                     </tr>
                     {% endfor %}
                     {% if not user_list %}
-                    <tr><td colspan="6" style="text-align: center; color: var(--text-faint); padding: 2rem;">No users registered yet.</td></tr>
+                    <tr><td colspan="8" style="text-align: center; color: var(--text-faint); padding: 2rem;">No users registered yet.</td></tr>
                     {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- ===== TOPICS ===== -->
-    <div id="section-topics" class="section">
-        <div class="chart-card" style="margin-bottom: 2rem;">
-            <h3>📊 Full Topic Breakdown</h3>
-            {% for t in topics %}
-            <div class="bar-row">
-                <div class="bar-label">{{ t.display }}</div>
-                <div class="bar-track">
-                    <div class="bar-fill" data-width="{{ (t.count / total_users * 100) if total_users > 0 else 0 }}" style="width: 0%;"></div>
-                </div>
-                <div class="bar-count">{{ t.count }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="table-card">
-            <div class="table-toolbar">
-                <h3>Topic Details</h3>
-            </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Topic</th>
-                        <th>Subscribers</th>
-                        <th>% of Total Users</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for t in topics %}
-                    <tr>
-                        <td><span class="chip">{{ t.display }}</span></td>
-                        <td style="font-family: 'JetBrains Mono', monospace; font-weight: 600;">{{ t.count }}</td>
-                        <td style="font-family: 'JetBrains Mono', monospace;">{{ "%.0f"|format(t.count / total_users * 100) if total_users > 0 else 0 }}%</td>
-                    </tr>
-                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -205,27 +147,25 @@
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Timestamp</th>
-                        <th>Recipient</th>
-                        <th>Topics</th>
-                        <th>Result</th>
+                        <th>Timestamp (IST)</th>
+                        <th>Chat ID</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Error</th>
                     </tr>
                 </thead>
                 <tbody id="logs-tbody">
                     {% for log in logs %}
-                    <tr class="log-row" data-status="{{ log.status }}">
-                        <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">{{ log.sent_at }}</td>
+                    <tr>
+                        <td>{{ log.timestamp }}</td>
                         <td style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">{{ log.chat_id }}</td>
-                        <td>
-                            {% for topic in log.topics %}
-                            <span class="chip">{{ topic }}</span>
-                            {% endfor %}
-                        </td>
+                        <td><span class="chip">Briefing</span></td>
                         <td><span class="pill pill-{{ log.status }}">{{ log.status }}</span></td>
+                        <td style="color: var(--danger); font-size: 0.75rem;">{{ log.error or '—' }}</td>
                     </tr>
                     {% endfor %}
                     {% if not logs %}
-                    <tr><td colspan="4" style="text-align: center; color: var(--text-faint); padding: 2rem;">No delivery logs yet. Logs are recorded when news is sent.</td></tr>
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-faint); padding: 2rem;">No logs recorded yet.</td></tr>
                     {% endif %}
                 </tbody>
             </table>
@@ -234,56 +174,35 @@
 
     <!-- ===== SETTINGS ===== -->
     <div id="section-settings" class="section">
-        <div class="chart-card">
-            <h3>⚙️ Current Configuration</h3>
-            <table class="config-table">
-                <tr><td>GITHUB_REPO</td><td>{{ config.GITHUB_REPO }}</td></tr>
-                <tr><td>USERS_FILE</td><td>{{ config.USERS_FILE }}</td></tr>
-                <tr><td>AVAILABLE_TOPICS</td><td>{{ config.AVAILABLE_TOPICS | length }} categories configured</td></tr>
-                <tr><td>BOT_TOKEN</td><td>{{ '••••••' + config.BOT_TOKEN[-6:] if config.BOT_TOKEN else 'Not set' }}</td></tr>
-                <tr><td>GROQ_API_KEY</td><td>{{ 'Configured ✓' if config.GITHUB_TOKEN else 'Not set' }}</td></tr>
-            </table>
-        </div>
+        <div class="settings-grid">
+            <div class="settings-card">
+                <h3>GitHub Integration</h3>
+                <div class="kv-row">
+                    <span class="kv-label">Repository</span>
+                    <span class="kv-val">{{ config.GITHUB_REPO }}</span>
+                </div>
+                <div class="kv-row">
+                    <span class="kv-label">Users File</span>
+                    <span class="kv-val">{{ config.USERS_FILE }}</span>
+                </div>
+                <div class="kv-row">
+                    <span class="kv-label">Token Status</span>
+                    <span class="kv-val accent">Configured</span>
+                </div>
+            </div>
 
-        <div class="danger-zone">
-            <h3>⚠️ Danger Zone</h3>
-            <p style="color: var(--text-dim); margin: 1rem 0 1.25rem;">This action will immediately and permanently delete all registered users from the database. This cannot be undone.</p>
-            <button class="btn btn-danger" onclick="openDeleteModal()">🗑️ Delete All Users</button>
+            <div class="settings-card danger-zone">
+                <h3>Danger Zone</h3>
+                <p>Delete all registered users from the GitHub database. This action cannot be undone.</p>
+                <div class="danger-input-group">
+                    <input type="text" id="danger-confirm" placeholder="Type DELETE to confirm">
+                    <button class="btn-danger" onclick="deleteAllUsers()">Delete All</button>
+                </div>
+            </div>
         </div>
     </div>
 </main>
 
-<!-- DELETE MODAL -->
-<div id="delete-modal" class="modal-overlay">
-    <div class="modal">
-        <h3>⚠️ Confirm Destructive Action</h3>
-        <p>You are about to permanently delete <strong>all users</strong> from the database. This action is irreversible.</p>
-        <p>Type <code style="color: var(--red); font-family: 'JetBrains Mono', monospace; background: rgba(255,107,107,0.1); padding: 0.15rem 0.4rem; border-radius: 4px;">DELETE</code> below to confirm:</p>
-        <input type="text" id="delete-confirm-input" placeholder="Type DELETE to confirm" oninput="checkDeleteConfirmation()" autocomplete="off">
-        <div class="modal-actions">
-            <button class="btn-ghost" onclick="closeDeleteModal()">Cancel</button>
-            <button id="delete-confirm-btn" class="btn btn-danger" onclick="confirmDeleteAll()" disabled>Delete All Users</button>
-        </div>
-    </div>
-</div>
-
-<!-- TOAST CONTAINER -->
-<div id="toast-container" class="toast-container"></div>
-
 <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
-<script>
-// Log filtering
-function filterLogs(btn, status) {
-    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.log-row').forEach(row => {
-        if (status === 'all' || row.dataset.status === status) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}
-</script>
 </body>
 </html>

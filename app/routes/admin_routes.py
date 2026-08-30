@@ -6,8 +6,8 @@ from app.services.github_service import (
     get_users_from_github, save_users_to_github, 
     delete_single_user, update_user_status, normalize_users
 )
-from app.services.telegram_service import send_news_with_logging
-from app.services.news_service import generate_news
+from app.services.telegram_service import send_briefing_with_logging
+from app.services import student_service as stu
 from app.services import delivery_log_service
 
 admin_bp = Blueprint('admin', __name__)
@@ -43,36 +43,24 @@ def dashboard():
     users = normalize_users(users)
     total_users = len(users)
     
-    # Topic counts (deduplicated by canonical name)
-    topic_counts = {}
-    total_topic_subs = 0
-    for chat_id, data in users.items():
-        for topic in data.get("topics", []):
-            # Normalize: strip emoji prefix for dedup key
-            canonical = topic
-            for emoji in ["💻", "🚀", "📈", "🔬", "🧠", "🌍", "🏏"]:
-                canonical = canonical.replace(emoji, "").strip()
-            if canonical not in topic_counts:
-                topic_counts[canonical] = {"display": topic, "count": 0}
-            topic_counts[canonical]["count"] += 1
-            total_topic_subs += 1
-    
-    sorted_topics = sorted(topic_counts.values(), key=lambda x: x["count"], reverse=True)
-    
-    # Compute stats
+    # Compute mentor stats
     active_users = sum(1 for u in users.values() if u.get("status") != "paused")
-    avg_topics = round(total_topic_subs / total_users, 1) if total_users > 0 else 0
+    total_goals = sum(len(stu.get_goals(u)) for u in users.values())
+    total_tasks = sum(len(stu.get_pending_tasks(u)) for u in users.values())
     sent_today = delivery_log_service.get_today_count()
     
     # Prepare user list for table
     user_list = []
     for chat_id, data in users.items():
+        u = stu.ensure_student_fields(data)
         user_list.append({
             "chat_id": chat_id,
-            "topics": data.get("topics", []),
-            "status": data.get("status", "active"),
-            "joined_at": data.get("joined_at", "Unknown"),
-            "time": data.get("time", "08:00"),
+            "goals_count": len(stu.get_goals(u)),
+            "tasks_count": len(stu.get_pending_tasks(u)),
+            "reminders_count": len(u.get("reminders", [])),
+            "status": u.get("status", "active"),
+            "joined_at": u.get("joined_at", "Unknown"),
+            "time": u.get("time", "08:30"),
         })
     user_list.sort(key=lambda x: x["joined_at"], reverse=True)
     
@@ -82,9 +70,9 @@ def dashboard():
     return render_template('admin/dashboard.html',
         total_users=total_users,
         active_users=active_users,
+        total_goals=total_goals,
+        total_tasks=total_tasks,
         sent_today=sent_today,
-        avg_topics=avg_topics,
-        topics=sorted_topics,
         user_list=user_list,
         logs=logs,
         log_total=log_total,
@@ -116,9 +104,9 @@ def delete_user(chat_id):
 def resend_user(chat_id):
     users, sha = get_users_from_github()
     if chat_id in users:
-        user_topics = users[chat_id].get("topics", [])
-        news = generate_news(user_topics)
-        success = send_news_with_logging(chat_id, user_topics, news)
+        user = stu.ensure_student_fields(users[chat_id])
+        gameplan = stu.format_morning_gameplan(user)
+        success = send_briefing_with_logging(chat_id, gameplan)
         return jsonify({"success": success})
     return jsonify({"success": False, "error": "User not found"}), 404
 

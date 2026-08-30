@@ -1,76 +1,33 @@
 {
     "6690855328": {
-        "time": "07:57",
-        "topics": [
-            "\ud83d\udcbb Tech & Hardware",
-            "\ud83d\ude80 Startups & Business",
-            "\ud83d\udcc8 Stock Market & Finance",
-            "\ud83d\udd2c Science & Space",
-            "\ud83c\udf0d Global News",
-            "\ud83e\udde0 Educational Facts & History",
-            "\ud83c\udfcf Cricket News"
-        ],
-        "active": true,
+        "time": "08:30",
+        "status": "active",
+        "joined_at": "2026-08-05",
         "goals": [
             {
                 "id": 1,
-                "name": "learn MERN stack",
+                "name": "Learn MERN Stack",
                 "target_date": "2026-10-05",
-                "created_at": "2026-08-05"
+                "created_date": "2026-08-05"
             }
         ],
         "tasks": [],
         "reminders": [],
-        "streaks": {
-            "briefing": 26,
-            "task": 0,
-            "quiz": 1,
-            "last_briefing": "2026-08-31",
-            "last_task": null,
-            "last_quiz": "2026-08-09"
-        },
-        "quiz": {
-            "correct": 5,
-            "attempted": 6
-        },
-        "mood_today": "\ud83d\ude10",
-        "mood_date": "2026-08-06",
-        "journal": {
-            "2026-08-06": "jbkj llk ?"
-        },
         "weekly_priority": "Complete the AI bot project",
-        "study_buddy": null,
-        "task_id_counter": 4,
+        "deep_work": null,
+        "task_id_counter": 0,
         "goal_id_counter": 1,
-        "reminder_id_counter": 4,
-        "status": "active",
-        "joined_at": "Unknown"
+        "reminder_id_counter": 0
     },
     "7168024869": {
-        "topics": [],
-        "time": "08:00",
+        "time": "08:30",
         "status": "active",
         "joined_at": "2026-08-07 01:46",
         "goals": [],
         "tasks": [],
         "reminders": [],
-        "streaks": {
-            "briefing": 24,
-            "task": 0,
-            "quiz": 0,
-            "last_briefing": "2026-08-30",
-            "last_task": null,
-            "last_quiz": null
-        },
-        "quiz": {
-            "correct": 0,
-            "attempted": 0
-        },
-        "mood_today": null,
-        "mood_date": null,
-        "journal": {},
         "weekly_priority": null,
-        "study_buddy": null,
+        "deep_work": null,
         "task_id_counter": 0,
         "goal_id_counter": 0,
         "reminder_id_counter": 0
