@@ -11,7 +11,32 @@
                 "created_date": "2026-08-31"
             }
         ],
-        "tasks": [],
+        "tasks": [
+            {
+                "id": 3,
+                "text": "Arrays",
+                "date": "2026-08-31",
+                "created_date": "2026-08-31",
+                "status": "pending",
+                "carried_over": false
+            },
+            {
+                "id": 4,
+                "text": "map",
+                "date": "2026-08-31",
+                "created_date": "2026-08-31",
+                "status": "pending",
+                "carried_over": false
+            },
+            {
+                "id": 5,
+                "text": "hash set",
+                "date": "2026-08-31",
+                "created_date": "2026-08-31",
+                "status": "pending",
+                "carried_over": false
+            }
+        ],
         "reminders": [
             {
                 "id": 1,
@@ -37,7 +62,7 @@
         ],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 2,
+        "task_id_counter": 5,
         "goal_id_counter": 1,
         "reminder_id_counter": 4
     },
