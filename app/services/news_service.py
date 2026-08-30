@@ -108,21 +108,39 @@ Rules:
 - Put a single empty line between each news block.
 """
 
-    # 3. Call Groq
-    try:
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {"role": "system", "content": "You are a helpful AI news assistant that strictly outputs HTML."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=1024
-        )
-        raw_text = response.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"❌ Groq API Error: {e}")
-        return f"❌ <b>Error generating news:</b> {str(e)}\n\nPlease check your GROQ_API_KEY on Render or ensure you haven't hit the rate limits."
+    # 3. Call Groq with fallback models
+    models_to_try = [
+        "llama-3.1-8b-instant",
+        "llama-3.1-70b-versatile",
+        "llama3-70b-8192",
+        "llama3-8b-8192",
+        "mixtral-8x7b-32768"
+    ]
+    raw_text = None
+    last_error = None
+
+    for model_name in models_to_try:
+        try:
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": "You are a helpful AI news assistant that strictly outputs HTML."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=1024
+            )
+            raw_text = response.choices[0].message.content.strip()
+            if raw_text:
+                break
+        except Exception as e:
+            last_error = e
+            print(f"⚠️ Failed with model {model_name}: {e}")
+            continue
+
+    if not raw_text:
+        print(f"❌ All Groq models failed. Last Error: {last_error}")
+        return f"❌ <b>Error generating news:</b> {str(last_error)}\n\nPlease check your GROQ_API_KEY on Render or ensure you haven't hit the rate limits."
 
     # 4. Format and Escape
     ist = timezone(timedelta(hours=5, minutes=30))
