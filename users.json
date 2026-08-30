@@ -19,13 +19,20 @@
                 "label": "DSA",
                 "daily": true,
                 "created_date": "2026-08-31"
+            },
+            {
+                "id": 3,
+                "time": "23:00",
+                "label": "AI agents",
+                "daily": true,
+                "created_date": "2026-08-31"
             }
         ],
         "weekly_priority": null,
         "deep_work": null,
         "task_id_counter": 2,
         "goal_id_counter": 0,
-        "reminder_id_counter": 2
+        "reminder_id_counter": 3
     },
     "7168024869": {
         "time": "08:30",
