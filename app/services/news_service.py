@@ -122,7 +122,7 @@ Rules:
         raw_text = response.choices[0].message.content.strip()
     except Exception as e:
         print(f"❌ Groq API Error: {e}")
-        return "❌ Error generating news. Please check Groq API limits or key."
+        return f"❌ <b>Error generating news:</b> {str(e)}\n\nPlease check your GROQ_API_KEY on Render or ensure you haven't hit the rate limits."
 
     # 4. Format and Escape
     ist = timezone(timedelta(hours=5, minutes=30))
