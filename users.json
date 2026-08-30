@@ -3,7 +3,14 @@
         "time": "08:30",
         "status": "active",
         "joined_at": "2026-08-05",
-        "goals": [],
+        "goals": [
+            {
+                "id": 2,
+                "name": "building AI agents",
+                "target_date": "2026-10-31",
+                "created_date": "2026-08-31"
+            }
+        ],
         "tasks": [
             {
                 "id": 3,
@@ -56,7 +63,7 @@
         "weekly_priority": null,
         "deep_work": null,
         "task_id_counter": 5,
-        "goal_id_counter": 1,
+        "goal_id_counter": 2,
         "reminder_id_counter": 4
     },
     "7168024869": {
