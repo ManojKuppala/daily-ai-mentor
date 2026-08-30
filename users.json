@@ -35,6 +35,14 @@
                 "created_date": "2026-08-31",
                 "status": "pending",
                 "carried_over": false
+            },
+            {
+                "id": 6,
+                "text": "Apply to off-campus jobs",
+                "date": "2026-08-31",
+                "created_date": "2026-08-31",
+                "status": "pending",
+                "carried_over": false
             }
         ],
         "reminders": [
@@ -62,7 +70,7 @@
         ],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 5,
+        "task_id_counter": 6,
         "goal_id_counter": 2,
         "reminder_id_counter": 4
     },
