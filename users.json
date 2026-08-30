@@ -7,13 +7,6 @@
         "tasks": [],
         "reminders": [
             {
-                "id": 2,
-                "time": "09:30",
-                "label": "JavaScript",
-                "daily": true,
-                "created_date": "2026-08-31"
-            },
-            {
                 "id": 1,
                 "time": "17:30",
                 "label": "DSA",
