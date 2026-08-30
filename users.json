@@ -21,6 +21,13 @@
                 "created_date": "2026-08-31"
             },
             {
+                "id": 4,
+                "time": "21:30",
+                "label": "javascript",
+                "daily": true,
+                "created_date": "2026-08-31"
+            },
+            {
                 "id": 3,
                 "time": "23:00",
                 "label": "AI agents",
@@ -32,7 +39,7 @@
         "deep_work": null,
         "task_id_counter": 2,
         "goal_id_counter": 0,
-        "reminder_id_counter": 3
+        "reminder_id_counter": 4
     },
     "7168024869": {
         "time": "08:30",
