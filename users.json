@@ -4,16 +4,7 @@
         "status": "active",
         "joined_at": "2026-08-05",
         "goals": [],
-        "tasks": [
-            {
-                "id": 2,
-                "text": "Practice LeetCode problems",
-                "date": "2026-08-31",
-                "created_date": "2026-08-31",
-                "status": "pending",
-                "carried_over": false
-            }
-        ],
+        "tasks": [],
         "reminders": [],
         "weekly_priority": null,
         "deep_work": null,
