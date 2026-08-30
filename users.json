@@ -3,14 +3,7 @@
         "time": "08:30",
         "status": "active",
         "joined_at": "2026-08-05",
-        "goals": [
-            {
-                "id": 1,
-                "name": "Arrays, Hash Set, Map in JavaScript",
-                "target_date": "2026-09-07",
-                "created_date": "2026-08-31"
-            }
-        ],
+        "goals": [],
         "tasks": [
             {
                 "id": 3,
