@@ -190,6 +190,9 @@ def process_natural_message(chat_id, user_data, text):
             if completed_names:
                 has_changes = True
                 mentor_response = f"✅ <b>Task Completed:</b> <i>{', '.join(completed_names)}</i>\n\nSolid execution. Keep pushing!"
+            else:
+                targets_str = ', '.join(str(x) for x in tasks_to_complete)
+                mentor_response = f"⚠️ <i>Could not find a pending task matching '{targets_str}'. Text /tasks to view your active list!</i>"
 
     # --- DELETE TASK (ONLY IF INTENT IS DELETE_TASK) ---
     task_to_del = data.get("task_to_delete")

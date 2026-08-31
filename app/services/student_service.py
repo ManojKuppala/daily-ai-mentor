@@ -126,19 +126,47 @@ def add_task(user_data, text, for_tomorrow=False):
     return task
 
 
+import re
+
 def complete_task(user_data, task_id_or_match):
-    """Mark a task as completed."""
+    """Mark a task as completed with flexible ID, substring, and keyword matching."""
     user_data = ensure_student_fields(user_data)
     today = _today_str()
+    query = str(task_id_or_match).strip().lower()
     
+    # 1. Exact ID match
     for t in user_data["tasks"]:
-        if t["status"] == "pending":
-            # Match by ID or text substring
-            if str(t["id"]) == str(task_id_or_match) or (isinstance(task_id_or_match, str) and task_id_or_match.lower() in t["text"].lower()):
-                t["status"] = "done"
-                t["completed_date"] = today
-                return True, t["text"]
-                
+        if t["status"] == "pending" and str(t["id"]) == query:
+            t["status"] = "done"
+            t["completed_date"] = today
+            return True, t["text"]
+
+    # Clean query of common filler words
+    cleaned_query = query
+    for filler in ["completed", "complete", "done with", "done", "finished", "finish", "task", "the"]:
+        cleaned_query = cleaned_query.replace(filler, "").strip()
+
+    # 2. Substring match
+    if cleaned_query:
+        for t in user_data["tasks"]:
+            if t["status"] == "pending":
+                t_lower = t["text"].lower()
+                if cleaned_query in t_lower or t_lower in cleaned_query:
+                    t["status"] = "done"
+                    t["completed_date"] = today
+                    return True, t["text"]
+
+    # 3. Keyword word-by-word overlap match
+    if cleaned_query:
+        query_words = set(w for w in re.findall(r'\w+', cleaned_query) if len(w) > 2)
+        for t in user_data["tasks"]:
+            if t["status"] == "pending":
+                task_words = set(w for w in re.findall(r'\w+', t["text"].lower()) if len(w) > 2)
+                if query_words & task_words:
+                    t["status"] = "done"
+                    t["completed_date"] = today
+                    return True, t["text"]
+                    
     return False, None
 
 

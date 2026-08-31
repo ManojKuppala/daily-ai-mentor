@@ -4,6 +4,10 @@ import re
 from app.config import Config
 
 def send_telegram_message(chat_id, text, reply_markup=None):
+    if not text or not str(text).strip():
+        text = "💬 <i>Acknowledged! Text me anytime to add tasks, complete items, or check /gameplan.</i>"
+    
+    text = str(text).strip()
     url = f"https://api.telegram.org/bot{Config.BOT_TOKEN}/sendMessage"
     
     max_length = 3900
