@@ -45,6 +45,14 @@
                 "status": "done",
                 "carried_over": false,
                 "completed_date": "2026-08-31"
+            },
+            {
+                "id": 7,
+                "text": "react components",
+                "date": "2026-08-31",
+                "created_date": "2026-08-31",
+                "status": "pending",
+                "carried_over": false
             }
         ],
         "reminders": [
@@ -72,7 +80,7 @@
         ],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 6,
+        "task_id_counter": 7,
         "goal_id_counter": 2,
         "reminder_id_counter": 4
     },
