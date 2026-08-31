@@ -17,8 +17,9 @@
                 "text": "Arrays",
                 "date": "2026-08-31",
                 "created_date": "2026-08-31",
-                "status": "pending",
-                "carried_over": false
+                "status": "done",
+                "carried_over": false,
+                "completed_date": "2026-08-31"
             },
             {
                 "id": 4,
