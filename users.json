@@ -89,11 +89,20 @@
         "status": "active",
         "joined_at": "2026-08-07 01:46",
         "goals": [],
-        "tasks": [],
+        "tasks": [
+            {
+                "id": 1,
+                "text": "Read books",
+                "date": "2026-09-01",
+                "created_date": "2026-09-01",
+                "status": "pending",
+                "carried_over": false
+            }
+        ],
         "reminders": [],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 0,
+        "task_id_counter": 1,
         "goal_id_counter": 0,
         "reminder_id_counter": 0
     }
