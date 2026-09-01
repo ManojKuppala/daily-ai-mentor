@@ -55,6 +55,22 @@
                 "created_date": "2026-08-31",
                 "status": "pending",
                 "carried_over": true
+            },
+            {
+                "id": 8,
+                "text": "Review DSA materials",
+                "date": "2026-09-01",
+                "created_date": "2026-09-01",
+                "status": "pending",
+                "carried_over": false
+            },
+            {
+                "id": 9,
+                "text": "Work on React Project",
+                "date": "2026-09-01",
+                "created_date": "2026-09-01",
+                "status": "pending",
+                "carried_over": false
             }
         ],
         "reminders": [
@@ -82,7 +98,7 @@
         ],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 7,
+        "task_id_counter": 9,
         "goal_id_counter": 2,
         "reminder_id_counter": 4
     },
