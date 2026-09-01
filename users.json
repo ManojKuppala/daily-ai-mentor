@@ -26,8 +26,9 @@
                 "text": "map",
                 "date": "2026-09-01",
                 "created_date": "2026-08-31",
-                "status": "pending",
-                "carried_over": true
+                "status": "done",
+                "carried_over": true,
+                "completed_date": "2026-09-01"
             },
             {
                 "id": 5,
