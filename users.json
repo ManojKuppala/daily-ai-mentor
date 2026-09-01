@@ -97,12 +97,20 @@
                 "created_date": "2026-09-01",
                 "status": "pending",
                 "carried_over": false
+            },
+            {
+                "id": 2,
+                "text": "Write books",
+                "date": "2026-09-01",
+                "created_date": "2026-09-01",
+                "status": "pending",
+                "carried_over": false
             }
         ],
         "reminders": [],
         "weekly_priority": null,
         "deep_work": null,
-        "task_id_counter": 1,
+        "task_id_counter": 2,
         "goal_id_counter": 0,
         "reminder_id_counter": 0
     }
