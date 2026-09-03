@@ -51,7 +51,7 @@
             {
                 "id": 7,
                 "text": "react components",
-                "date": "2026-09-02",
+                "date": "2026-09-03",
                 "created_date": "2026-08-31",
                 "status": "pending",
                 "carried_over": true
@@ -59,7 +59,7 @@
             {
                 "id": 8,
                 "text": "Review DSA materials",
-                "date": "2026-09-02",
+                "date": "2026-09-03",
                 "created_date": "2026-09-01",
                 "status": "pending",
                 "carried_over": true
@@ -67,7 +67,7 @@
             {
                 "id": 9,
                 "text": "Work on React Project",
-                "date": "2026-09-02",
+                "date": "2026-09-03",
                 "created_date": "2026-09-01",
                 "status": "pending",
                 "carried_over": true
@@ -111,7 +111,7 @@
             {
                 "id": 1,
                 "text": "Read books",
-                "date": "2026-09-02",
+                "date": "2026-09-03",
                 "created_date": "2026-09-01",
                 "status": "pending",
                 "carried_over": true
@@ -119,7 +119,7 @@
             {
                 "id": 2,
                 "text": "Write books",
-                "date": "2026-09-02",
+                "date": "2026-09-03",
                 "created_date": "2026-09-01",
                 "status": "pending",
                 "carried_over": true
